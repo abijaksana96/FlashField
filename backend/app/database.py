@@ -10,3 +10,10 @@ DATABASE_URL = os.getenv("DATABASE_URL") # ambil URL database dari .env
 engine = create_engine(DATABASE_URL) # Buat koneksi ke database
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine) # Buat session factory
 Base = declarative_base() # Buat base class untuk model
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
