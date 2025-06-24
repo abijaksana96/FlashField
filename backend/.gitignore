@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -10,4 +11,13 @@ node_modules/
 .venv/
 
 # Environment variable files
+=======
+# Node.js dependencies
+node_modules/
+
+# Python virtual environment
+.venv/
+
+# Environment variable files
+>>>>>>> ec7fc7c (Commit perubahan lokal sebelum merge)
 .env
