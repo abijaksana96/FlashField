@@ -45,3 +45,5 @@ def role_checker(required_roles: list[str]):
                 detail="You don't have enough permissions"
             )
         return current_user
+
+    return checker 
