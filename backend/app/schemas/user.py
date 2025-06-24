@@ -9,6 +9,8 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
+    role: Optional[str] = "volunteer"
+    created_at: Optional[str] = None
 
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None

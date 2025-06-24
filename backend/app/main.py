@@ -2,9 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine
 from app.models import Base
+from app.auth.router import router as auth_router
 
-
-# from auth.router import router as auth_router
 # from users.router import router as users_router
 # from experiments.router import router as experiments_router
 # from stats.router import router as stats_router
@@ -37,7 +36,7 @@ app.add_middleware(
 def read_root():
     return {"message": "Selamat datang di FlashField API!"}
 
-# app.include_router(auth_router, prefix="/auth")
+app.include_router(auth_router, prefix="/auth")
 # app.include_router(users_router)
 # app.include_router(experiments_router)
 # app.include_router(stats_router)
