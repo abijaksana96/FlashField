@@ -1,10 +1,13 @@
-from typing import Optional
 from pydantic import BaseModel
-from app.models import User
+from typing import Optional
+from datetime import datetime
+from app.schemas import user
+from app.schemas import submission as submission_schema
 
 class ExperimentBase(BaseModel):
-    title: str
+    title: Optional[str] = None
     description: Optional[str] = None
+    deadline: Optional[datetime] = None
 
 class ExperimentCreate(ExperimentBase):
     pass
@@ -12,11 +15,14 @@ class ExperimentCreate(ExperimentBase):
 class ExperimentUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
+    deadline: Optional[datetime] = None
 
 class Experiment(ExperimentBase):
     id: int
     created_by: int
-    owner: Optional[User] = None  # Nested User
+    created_at: datetime
+    owner: user.User
+    submissions : Optional[list[submission_schema.Submission]] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True

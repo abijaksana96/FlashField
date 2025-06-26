@@ -4,6 +4,7 @@ from app.database import engine
 from app.models import Base
 from app.auth.router import router as auth_router
 from app.router.user import router as users_router
+from app.router.experiment import router as experiments_router
 
 # from users.router import router as users_router
 # from experiments.router import router as experiments_router
@@ -39,5 +40,5 @@ def read_root():
 
 app.include_router(auth_router, prefix="/auth")
 app.include_router(users_router)
-# app.include_router(experiments_router)
+app.include_router(experiments_router)
 # app.include_router(stats_router)

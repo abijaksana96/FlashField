@@ -25,6 +25,7 @@ class Experiment(Base):
     id = Column(Integer, primary_key=True, index=True, comment="ID Eksperimen")
     title = Column(String, nullable=False, comment="Judul")
     description = Column(Text, comment="Deskripsi")
+    deadline = Column(DateTime(timezone=True), nullable=True, comment="Batas waktu partisipasi")
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False, comment="ID User pembuat")
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, comment="Waktu dibuat")
     owner = relationship("User", back_populates="experiments")
