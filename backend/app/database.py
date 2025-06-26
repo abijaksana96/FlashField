@@ -17,3 +17,8 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def create_tables():
+    """Buat semua tabel yang didefinisikan dalam models"""
+    from app.models import User, Experiment, Submission  # Import semua model
+    Base.metadata.create_all(bind=engine)  
