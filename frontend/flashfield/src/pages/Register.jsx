@@ -27,7 +27,7 @@ function Register() {
                 full_name: fullName, 
                 email: email, 
                 password: password, 
-                role: role,  
+                role: "volunteer",
             });
             
             console.log('Registrasi berhasil:', response.data);
@@ -105,22 +105,6 @@ function Register() {
                             required
                             autoComplete="new-password"
                         />
-                    </div>
-                    <div className="mb-6">
-                        <label htmlFor="role" className="block text-slate text-sm font-medium mb-2">
-                            Daftar sebagai
-                        </label>
-                        <select
-                            id="role"
-                            name="role"
-                            value={role}
-                            onChange={(e) => setRole(e.target.value)}
-                            className={`w-full p-3 bg-navy rounded-md border border-slate/50 focus:border-cyan focus:ring-1 focus:ring-cyan focus:outline-none transition-colors ${!role ? 'text-slate' : 'text-lightest-slate'}`}
-                            required>
-                            <option value="" disabled>Pilih peran Anda...</option>
-                            <option value="volunteer">Volunteer</option>
-                            <option value="researcher">Researcher</option>
-                        </select>
                     </div>
                     {error && (
                         <p className="text-red-400 text-sm text-center mb-4">{error}</p>

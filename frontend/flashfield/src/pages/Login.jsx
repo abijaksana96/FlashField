@@ -27,7 +27,7 @@ function Login() {
             
             console.log('Login berhasil:', response.data);
             localStorage.setItem('accessToken', response.data.access_token);
-            navigate('/beranda');
+            navigate('/homepage');
 
         } catch (err) {
             console.error('Login gagal:', err.response ? err.response.data : err.message);
