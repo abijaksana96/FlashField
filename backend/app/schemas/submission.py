@@ -1,19 +1,20 @@
-from typing import Optional
 from pydantic import BaseModel
-from app.models import User, Experiment
+from typing import Any
+from datetime import datetime
 
 class SubmissionBase(BaseModel):
-    data: str  # atau tipe data lain sesuai kebutuhan
+    geo_lat: float
+    geo_lng: float
+    data_json: dict[str, Any]
 
 class SubmissionCreate(SubmissionBase):
-    experiment_id: int
+    pass
 
 class Submission(SubmissionBase):
     id: int
     experiment_id: int
     user_id: int
-    submitter: Optional[User] = None  # Nested User
-    experiment: Optional[Experiment] = None  # Nested Experiment
+    timestamp: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
