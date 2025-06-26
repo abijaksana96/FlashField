@@ -30,6 +30,24 @@ def read_experiment(experiment_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Experiment not found")
     return db_experiment
 
+@router.get("/{experiment_id}/fields")
+def get_experiment_fields(experiment_id: int, db: Session = Depends(get_db)):
+    """
+    Mendapatkan konfigurasi field input untuk experiment (untuk form submission)
+    """
+    db_experiment = crud.get_experiment(db, experiment_id=experiment_id)
+    if db_experiment is None:
+        raise HTTPException(status_code=404, detail="Experiment not found")
+    
+    return {
+        "experiment_id": experiment_id,
+        "title": db_experiment.title,
+        "description": db_experiment.description,
+        "require_location": db_experiment.require_location,
+        "input_fields": db_experiment.input_fields,
+        "deadline": db_experiment.deadline
+    }
+
 @router.put("/{experiment_id}", response_model=schemas.Experiment)
 def update_existing_experiment(
     experiment_id: int,
@@ -70,7 +88,12 @@ def submit_to_experiment(
     db_experiment = crud.get_experiment(db, experiment_id=experiment_id)
     if db_experiment is None:
         raise HTTPException(status_code=404, detail="Experiment not found")
-    return create_submission_crud(db=db, submission=submission, experiment_id=experiment_id, user_id=current_user.id)
+    
+    # Set experiment_id di submission jika belum ada
+    if submission.experiment_id != experiment_id:
+        submission.experiment_id = experiment_id
+        
+    return create_submission_crud(db=db, submission=submission, user_id=current_user.id)
 
 @router.get("/{experiment_id}/submissions", response_model=list[Submission], dependencies=[Depends(role_checker(["researcher", "admin"]))])
 def get_experiment_submissions(
