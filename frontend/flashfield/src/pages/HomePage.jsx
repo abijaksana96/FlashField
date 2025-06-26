@@ -1,30 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-
-const ExperimentCard = ({ experiment }) => {
-    return (
-        <div className="card-bg rounded-lg overflow-hidden flex flex-col h-full">
-            <div className="p-6 flex-grow">
-                <p className="text-sm text-cyan mb-2">Oleh: {experiment.owner?.full_name || 'Peneliti'}</p>
-                <h3 className="text-xl font-bold text-lightest-slate mb-3">{experiment.title}</h3>
-                <p className="text-slate text-sm line-clamp-3">{experiment.description}</p>
-            </div>
-            <div className="p-6 border-t border-navy/50">
-                <Link to={`/experiments/${experiment.id}`} className="text-sm font-bold text-cyan hover:underline">
-                    Lihat Detail & Submit
-                </Link>
-            </div>
-        </div>
-    );
-};
+import ExperimentCard from '../components/ExperimentCard'; 
 
 function HomePage() {
     const [currentSlide, setCurrentSlide] = useState(0);
     const slides = [
         "https://placehold.co/1200x400/0a192f/64ffda?text=Selamat+Datang+di+FlashField",
         "https://placehold.co/1200x400/112240/a8b2d1?text=Riset+Kualitas+Udara+Terbaru",
-        "https://placehold.co/1200x400/0a192f/ffffff?text=Jadilah+Bagian+dari+Sains",
     ];
     const timeoutRef = useRef(null);
 
@@ -65,17 +48,17 @@ function HomePage() {
     return (
         <>
             <section className="relative w-full max-w-7xl mx-auto h-64 md:h-96 overflow-hidden my-8 rounded-lg shadow-lg">
-                    <div className="whitespace-nowrap transition-transform duration-1000 ease-in-out" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
-                        {slides.map((src, index) => (
-                            <img key={index} src={src} alt={`Slide ${index + 1}`} className="w-full h-full object-cover inline-block" />
-                        ))}
-                    </div>
-                    <div className="absolute bottom-5 right-5 flex space-x-2">
-                        {slides.map((_, index) => (
-                            <button key={index} onClick={() => setCurrentSlide(index)} className={`w-3 h-3 rounded-full ${currentSlide === index ? 'bg-cyan' : 'bg-slate/50'}`}></button>
-                        ))}
-                    </div>
-                </section>
+                <div className="whitespace-nowrap transition-transform duration-1000 ease-in-out" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
+                    {slides.map((src, index) => (
+                        <img key={index} src={src} alt={`Slide ${index + 1}`} className="w-full h-full object-cover inline-block" />
+                    ))}
+                </div>
+                <div className="absolute bottom-5 right-5 flex space-x-2">
+                    {slides.map((_, index) => (
+                        <button key={index} onClick={() => setCurrentSlide(index)} className={`w-3 h-3 rounded-full ${currentSlide === index ? 'bg-cyan' : 'bg-slate/50'}`}></button>
+                    ))}
+                </div>
+            </section>
 
             <section className="py-16 px-4">
                 <div className="max-w-7xl mx-auto">

@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 
-function Register() {
+function RegisterPage() {
+    // State untuk menyimpan nilai dari input form
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [role, setRole] = useState(''); 
+    
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -14,20 +15,14 @@ function Register() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-
-        if (!role) {
-            setError('Silakan pilih peran Anda.');
-            return; 
-        }
-
         setLoading(true);
 
         try {
+            // Backend sudah memiliki nilai default "volunteer", jadi kita tidak perlu mengirim 'role'
             const response = await axios.post('http://127.0.0.1:8000/auth/register', {
                 full_name: fullName, 
                 email: email, 
                 password: password, 
-                role: "volunteer",
             });
             
             console.log('Registrasi berhasil:', response.data);
@@ -39,7 +34,7 @@ function Register() {
             if (err.response && err.response.data && err.response.data.detail) {
                  setError(err.response.data.detail);
             } else {
-                setError('Registrasi gagal. Silakan coba lagi.');
+                setError('Registrasi gagal. Pastikan backend berjalan dan CORS sudah benar.');
             }
         } finally {
             setLoading(false);
@@ -90,7 +85,7 @@ function Register() {
                             autoComplete="email"
                         />
                     </div>
-                    <div className="mb-4">
+                    <div className="mb-6">
                         <label htmlFor="password"  className="block text-slate text-sm font-medium mb-2">
                             Password
                         </label>
@@ -106,6 +101,7 @@ function Register() {
                             autoComplete="new-password"
                         />
                     </div>
+                    
                     {error && (
                         <p className="text-red-400 text-sm text-center mb-4">{error}</p>
                     )}
@@ -124,7 +120,7 @@ function Register() {
                     </Link>
                 </p>
             </div>
-            <div className="mt-4">
+            <div className="mt-8">
                 <Link to="/" className="text-sm text-slate hover:text-cyan transition-colors">
                     &larr; Kembali ke Beranda
                 </Link>
@@ -133,4 +129,4 @@ function Register() {
     );
 }
 
-export default Register;
+export default RegisterPage;

@@ -4,6 +4,11 @@ import LandingPage from './pages/LandingPage';
 import Login from './pages/Login' 
 import Register from './pages/Register'
 import HomePage from './pages/HomePage'
+import Experiments from './pages/Experiments';
+import ExperimentDetail from './pages/ExperimentDetail';
+import Submission from './pages/Submission';
+import Dashboard from './pages/Dashboard';
+import Profile from './pages/Profile';
 import './index.css';
 
 function App() {
@@ -16,9 +21,11 @@ function App() {
 
         <Route element={<MainLayout />}>
         <Route path="/homepage" element={<HomePage />} />
-        {/* <Route path="/experiments" element={<ExperimentsListPage />} /> */}
-        {/* Tambahkan rute lain yang memerlukan layout di sini */}
-        {/* <Route path="/profile" element={<ProfilePage />} /> */}
+        <Route path="/experiments" element={<Experiments />} />
+        <Route path="/experiments/:id" element={<ExperimentDetail />} />
+        <Route path="/experiments/:id/submit" element={<Submission />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
       </Route>
     </Routes>
     </>
