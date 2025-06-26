@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Any
+from typing import Any, Dict, Optional
 from datetime import datetime
 
 class SubmissionBase(BaseModel):
@@ -9,6 +9,11 @@ class SubmissionBase(BaseModel):
 
 class SubmissionCreate(SubmissionBase):
     pass
+
+class SubmissionUpdate(BaseModel):
+    geo_lat: Optional[float] = None
+    geo_lng: Optional[float] = None
+    data_json: Optional[Dict[str, Any]] = None
 
 class Submission(SubmissionBase):
     id: int
