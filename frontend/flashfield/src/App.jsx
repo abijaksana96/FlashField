@@ -7,8 +7,11 @@ import HomePage from './pages/HomePage'
 import Experiments from './pages/Experiments';
 import ExperimentDetail from './pages/ExperimentDetail';
 import Submission from './pages/Submission';
-import Dashboard from './pages/Dashboard';
+import Kontribusi from './pages/Kontribusi';
 import Profile from './pages/Profile';
+import CreateExperiment from './pages/CreateExperiment';
+import DashboardPage from './pages/DashboardPage';
+import AdminUserManagement from './pages/AdminUserManagement';
 import './index.css';
 
 function App() {
@@ -20,12 +23,17 @@ function App() {
         <Route path="/register" element={<Register />} />
 
         <Route element={<MainLayout />}>
+        <Route path="/dashboardrole" element={<DashboardPage />} />
         <Route path="/homepage" element={<HomePage />} />
         <Route path="/experiments" element={<Experiments />} />
         <Route path="/experiments/:id" element={<ExperimentDetail />} />
         <Route path="/experiments/:id/submit" element={<Submission />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/kontribusi" element={<Kontribusi />} />
         <Route path="/profile" element={<Profile />} />
+
+        <Route path="/admin/usermanagement" element={<AdminUserManagement />} />
+
+        <Route path="/experiments/create" element={<CreateExperiment />} />
       </Route>
     </Routes>
     </>

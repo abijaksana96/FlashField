@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 function Login() {
+    const { login } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -26,8 +28,9 @@ function Login() {
             });
             
             console.log('Login berhasil:', response.data);
-            localStorage.setItem('accessToken', response.data.access_token);
-            navigate('/homepage');
+            login(response.data.user, response.data.access_token);
+            // localStorage.setItem('accessToken', response.data.access_token);
+            // navigate('/homepage');
 
         } catch (err) {
             console.error('Login gagal:', err.response ? err.response.data : err.message);

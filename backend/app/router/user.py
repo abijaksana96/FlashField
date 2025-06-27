@@ -40,12 +40,12 @@ def delete_own_account(
     return None
 
 # Menampilkan daftar semua data yang pernah user kirim
-# @router.get("/me/submissions", response_model=list[submission_schemas.Submission])
-# def read_own_submissions(
-#     db: Session = Depends(get_db),
-#     current_user: User = Depends(get_current_active_user)
-# ):
-#     return submission_crud.get_submissions_by_user(db=db, user_id=current_user.id)
+@router.get("/me/submissions", response_model=list[submission_schemas.Submission])
+def read_own_submissions(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    return submission_crud.get_submissions_by_user(db=db, user_id=current_user.id)
 
 
 # Endpoint untuk mendapatkan semua user (khusus admin)

@@ -2,27 +2,50 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import apiClient from '../api/axiosConfig';
 
-// Komponen untuk merender satu field input secara dinamis
+// Komponen untuk merender satu field input secara dinamis (DIPERBARUI)
 const DynamicFormField = ({ field, value, onChange }) => {
     const commonClasses = "w-full p-3 bg-navy text-lightest-slate rounded-md border border-slate/50 focus:border-cyan focus:ring-1 focus:ring-cyan focus:outline-none transition-colors";
+    const placeholder = field.placeholder || `Masukkan ${field.label.toLowerCase()}`;
 
     switch (field.type) {
         case 'number':
-            return <input type="number" name={field.name} value={value || ''} onChange={onChange} className={commonClasses} required={field.required} min={field.min_value} max={field.max_value} />;
+            return <input type="number" name={field.name} value={value || ''} onChange={onChange} className={commonClasses} required={field.required} min={field.min_value} max={field.max_value} placeholder={placeholder} />;
         case 'textarea':
-            return <textarea name={field.name} value={value || ''} onChange={onChange} rows="4" className={commonClasses} required={field.required} minLength={field.min_length} maxLength={field.max_length} />;
+            return <textarea name={field.name} value={value || ''} onChange={onChange} rows="4" className={commonClasses} required={field.required} minLength={field.min_length} maxLength={field.max_length} placeholder={placeholder} />;
         case 'select':
             return (
                 <select name={field.name} value={value || ''} onChange={onChange} className={commonClasses} required={field.required}>
-                    <option value="" disabled>Pilih salah satu...</option>
-                    {field.options && field.options.map(option => (
-                        <option key={option} value={option}>{option}</option>
-                    ))}
+                    <option value="" disabled>Pilih {field.label.toLowerCase()}...</option>
+                    {field.options?.map(option => <option key={option} value={option}>{option}</option>)}
                 </select>
             );
+        case 'radio': // Tipe input baru
+            return (
+                <div className="flex flex-wrap gap-x-6 gap-y-2 pt-2">
+                    {field.options?.map(option => (
+                        <label key={option} className="flex items-center gap-2 text-light-slate">
+                            <input type="radio" name={field.name} value={option} checked={value === option} onChange={onChange} className="text-cyan focus:ring-cyan" />
+                            {option}
+                        </label>
+                    ))}
+                </div>
+            );
+        case 'checkbox': // Tipe input baru
+            return (
+                 <div className="flex flex-wrap gap-x-6 gap-y-2 pt-2">
+                    {field.options?.map(option => (
+                        <label key={option} className="flex items-center gap-2 text-light-slate">
+                            <input type="checkbox" name={field.name} value={option} checked={value?.includes(option)} onChange={onChange} className="rounded text-cyan focus:ring-cyan" />
+                            {option}
+                        </label>
+                    ))}
+                </div>
+            );
+        case 'date':
+             return <input type="date" name={field.name} value={value || ''} onChange={onChange} className={commonClasses} required={field.required} />;
         case 'text':
         default:
-            return <input type="text" name={field.name} value={value || ''} onChange={onChange} className={commonClasses} required={field.required} minLength={field.min_length} maxLength={field.max_length} />;
+            return <input type="text" name={field.name} value={value || ''} onChange={onChange} className={commonClasses} required={field.required} minLength={field.min_length} maxLength={field.max_length} placeholder={placeholder} />;
     }
 };
 
@@ -43,12 +66,14 @@ function Submission() {
     useEffect(() => {
         const fetchExperimentSchema = async () => {
             try {
-                const response = await apiClient.get(`/experiments/${experimentId}/fields`);
+                // PERBAIKAN: Gunakan endpoint utama yang sudah lengkap
+                const response = await apiClient.get(`/experiments/${experimentId}`);
                 setExperiment(response.data);
                 const initialFormData = {};
                 if (response.data.input_fields) {
                     response.data.input_fields.forEach(field => {
-                        initialFormData[field.name] = '';
+                        // Inisialisasi checkbox sebagai array kosong
+                        initialFormData[field.name] = field.type === 'checkbox' ? [] : '';
                     });
                 }
                 setFormData(initialFormData);
@@ -61,55 +86,70 @@ function Submission() {
         fetchExperimentSchema();
     }, [experimentId]);
 
+    // PERBAIKAN: handleInputChange sekarang bisa menangani checkbox group
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevData => ({ ...prevData, [name]: value }));
+        const { name, value, type, checked } = e.target;
+
+        if (type === 'checkbox') {
+            setFormData(prevData => {
+                const currentValues = prevData[name] || [];
+                if (checked) {
+                    // Tambahkan nilai ke array jika dicentang
+                    return { ...prevData, [name]: [...currentValues, value] };
+                } else {
+                    // Hapus nilai dari array jika tidak dicentang
+                    return { ...prevData, [name]: currentValues.filter(item => item !== value) };
+                }
+            });
+        } else {
+            setFormData(prevData => ({ ...prevData, [name]: value }));
+        }
     };
     
     const handleGetLocation = () => {
         setLocationError('');
-        if (!navigator.geolocation) {
-            setLocationError('Geolocation tidak didukung oleh browser Anda.');
-            return;
-        }
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 setLatitude(position.coords.latitude.toFixed(6));
                 setLongitude(position.coords.longitude.toFixed(6));
             },
-            () => {
-                setLocationError('Tidak dapat mengakses lokasi. Pastikan Anda telah memberikan izin.');
-            }
+            () => { setLocationError('Tidak dapat mengakses lokasi. Pastikan Anda telah memberikan izin.'); }
         );
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        setSubmitting(true);
         
-        // PERBAIKAN: Sertakan experiment_id di dalam payload
-        const payload = {
-            experiment_id: parseInt(experimentId, 10), // <-- TAMBAHKAN INI
-            data_json: formData
-        };
+        if (experiment.require_location && (!latitude || !longitude)) {
+            setError('Lokasi wajib diisi untuk eksperimen ini.');
+            return;
+        }
 
-        if (experiment.require_location) {
-            if (!latitude || !longitude) {
-                setError('Lokasi wajib diisi untuk eksperimen ini.');
-                setSubmitting(false);
+        for (const field of experiment.input_fields) {
+            if (field.required && (!formData[field.name] || formData[field.name].length === 0)) {
+                setError(`Field "${field.label}" wajib diisi.`);
                 return;
             }
-            payload.geo_lat = parseFloat(latitude);
-            payload.geo_lng = parseFloat(longitude);
         }
+
+        setSubmitting(true);
+        
+        const payload = {
+            experiment_id: parseInt(experimentId, 10),
+            data_json: formData,
+            ...(experiment.require_location && {
+                geo_lat: parseFloat(latitude),
+                geo_lng: parseFloat(longitude),
+            })
+        };
 
         try {
             await apiClient.post(`/experiments/${experimentId}/submissions`, payload);
             alert('Data berhasil dikirim! Terima kasih atas kontribusi Anda.');
             navigate(`/experiments/${experimentId}`);
         } catch (err) {
-            setError(err.response?.data?.detail || 'Gagal mengirim data. Pastikan semua field terisi.');
+            setError(err.response?.data?.detail || 'Gagal mengirim data.');
         } finally {
             setSubmitting(false);
         }
@@ -121,7 +161,7 @@ function Submission() {
     return (
         <div className="max-w-4xl mx-auto py-12 px-4">
             <div className="mb-8">
-                <Link to={`/experiments/${experimentId}`} className="text-sm text-slate hover:text-cyan">&larr; Kembali ke Detail</Link>
+                <Link to={`/experiments/${experiment.id}`} className="text-sm text-slate hover:text-cyan">&larr; Kembali ke Detail</Link>
                 <h1 className="text-4xl font-extrabold text-lightest-slate mt-2">Submit Data untuk:</h1>
                 <p className="text-2xl text-cyan">{experiment.title}</p>
             </div>
@@ -163,6 +203,7 @@ function Submission() {
                                         value={formData[field.name]} 
                                         onChange={handleInputChange} 
                                     />
+                                    {field.description && <p className="text-xs text-slate mt-1">{field.description}</p>}
                                 </div>
                             ))
                         ) : (

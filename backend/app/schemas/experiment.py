@@ -9,6 +9,7 @@ class InputField(BaseModel):
     name: str = Field(description="Nama field")
     label: str = Field(description="Label yang ditampilkan ke user")
     type: str = Field(description="Tipe input: text, number, textarea, select, radio, checkbox, date, time, datetime")
+    unit: Optional[str] = Field(default=None, description="Satuan untuk field (misal: °C, dB, meter)")
     required: bool = Field(default=True, description="Apakah field wajib diisi")
     placeholder: Optional[str] = Field(default=None, description="Placeholder text")
     description: Optional[str] = Field(default=None, description="Deskripsi bantuan untuk field")

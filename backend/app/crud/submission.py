@@ -147,3 +147,9 @@ def delete_submission(db: Session, submission_id: int):
         db.commit()
     return db_obj
 
+def get_submissions_by_user(db: Session, user_id: int, skip: int = 0, limit: int = 100):
+    """
+    Mengambil semua submisi yang dibuat oleh seorang pengguna, 
+    diurutkan dari yang terbaru.
+    """
+    return db.query(models.Submission).filter(models.Submission.user_id == user_id).order_by(models.Submission.timestamp.desc()).offset(skip).limit(limit).all()
