@@ -13,6 +13,7 @@ import CreateExperiment from './pages/CreateExperiment';
 import DashboardPage from './pages/DashboardPage';
 import AdminUserManagement from './pages/AdminUserManagement';
 import './index.css';
+import AdminExperimentManagement from './pages/AdminExperimentManagement';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
 
         <Route path="/admin/usermanagement" element={<AdminUserManagement />} />
+        <Route path="/admin/experimentmanagement" element={<AdminExperimentManagement />} />
 
         <Route path="/experiments/create" element={<CreateExperiment />} />
       </Route>
