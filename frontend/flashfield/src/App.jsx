@@ -16,6 +16,9 @@ import './index.css';
 import AdminExperimentManagement from './pages/AdminExperimentManagement';
 import ManageSubmissionsPage from './pages/ManageSubmissionsPage';
 import AdminStatsAndHeatmapPage from './pages/AdminStatsAndHeatmapPage';
+import ResearcherDashboard from './pages/ResearcherDashboard';
+import ManageExperimentPage from './pages/ManageExperimentPage';
+import EditExperimentPage from './pages/EditExperimentPage';
 
 function App() {
   return (
@@ -25,6 +28,12 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
+        {/* Router Researcher tanpa Navbar */}
+        <Route path="/experiments/create" element={<CreateExperiment />} />
+        <Route path="/experiments/create/:id" element={<ManageExperimentPage />} />
+        <Route path="/experiments/edit/:id" element={<EditExperimentPage />} />
+
+        {/* Router pake Navbar */}
         <Route element={<MainLayout />}>
         <Route path="/dashboardrole" element={<DashboardPage />} />
         <Route path="/homepage" element={<HomePage />} />
@@ -39,7 +48,7 @@ function App() {
         <Route path="/admin/experiments/:id/manage" element={<ManageSubmissionsPage />} />
         <Route path="/admin/stats" element={<AdminStatsAndHeatmapPage />} />
 
-        <Route path="/experiments/create" element={<CreateExperiment />} />
+        <Route path="/researcher/dashboard" element={<ResearcherDashboard />} />
       </Route>
     </Routes>
     </>

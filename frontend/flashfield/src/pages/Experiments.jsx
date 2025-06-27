@@ -3,11 +3,87 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import ExperimentCard from '../components/ExperimentCard';
 
+// Komponen Pagination
+const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+    const getPageNumbers = () => {
+        const pages = [];
+        const maxVisible = 5;
+        
+        if (totalPages <= maxVisible) {
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            const start = Math.max(1, currentPage - 2);
+            const end = Math.min(totalPages, start + maxVisible - 1);
+            
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+        }
+        
+        return pages;
+    };
+
+    const pageNumbers = getPageNumbers();
+
+    if (totalPages <= 1) return null;
+
+    return (
+        <div className="flex items-center justify-center mt-12">
+            <div className="flex items-center space-x-2">
+                <button
+                    onClick={() => onPageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`px-4 py-2 text-sm rounded-md ${
+                        currentPage === 1
+                            ? 'text-slate/50 cursor-not-allowed'
+                            : 'text-slate hover:text-cyan hover:bg-navy/50'
+                    }`}
+                >
+                    ← Sebelumnya
+                </button>
+                
+                {pageNumbers.map(page => (
+                    <button
+                        key={page}
+                        onClick={() => onPageChange(page)}
+                        className={`px-4 py-2 text-sm rounded-md ${
+                            page === currentPage
+                                ? 'bg-cyan text-navy font-semibold'
+                                : 'text-slate hover:text-cyan hover:bg-navy/50'
+                        }`}
+                    >
+                        {page}
+                    </button>
+                ))}
+                
+                <button
+                    onClick={() => onPageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className={`px-4 py-2 text-sm rounded-md ${
+                        currentPage === totalPages
+                            ? 'text-slate/50 cursor-not-allowed'
+                            : 'text-slate hover:text-cyan hover:bg-navy/50'
+                    }`}
+                >
+                    Selanjutnya →
+                </button>
+            </div>
+        </div>
+    );
+};
+
 function Experiments() {
     const [experiments, setExperiments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [userRole, setUserRole] = useState("researcher");
+    
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(9); // 3x3 grid
+    const [totalExperiments, setTotalExperiments] = useState(0);
 
     useEffect(() => {
         const fetchAllExperiments = async () => {
@@ -15,6 +91,7 @@ function Experiments() {
             try {
                 const response = await axios.get('http://127.0.0.1:8000/experiments');
                 setExperiments(response.data);
+                setTotalExperiments(response.data.length);
             } catch (err) {
                 setError("Tidak dapat memuat daftar eksperimen.");
             } finally {
@@ -23,6 +100,17 @@ function Experiments() {
         };
         fetchAllExperiments();
     }, []);
+
+    // Calculate pagination
+    const totalPages = Math.ceil(totalExperiments / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentExperiments = experiments.slice(startIndex, endIndex);
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     return (
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
@@ -36,12 +124,19 @@ function Experiments() {
             {loading && <p className="text-center text-cyan text-lg">Memuat semua eksperimen...</p>}
             {error && <div className="text-center text-red-400 bg-red-500/10 p-4 rounded-md">{error}</div>}
             
-            {!loading && !error && experiments.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {experiments.map(exp => (
-                        <ExperimentCard key={exp.id} experiment={exp} />
-                    ))}
-                </div>
+            {!loading && !error && currentExperiments.length > 0 && (
+                <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {currentExperiments.map(exp => (
+                            <ExperimentCard key={exp.id} experiment={exp} />
+                        ))}
+                    </div>
+                    <Pagination 
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                    />
+                </>
             )}
              {!loading && !error && experiments.length === 0 && (
                 <div className="text-center text-slate mt-16">

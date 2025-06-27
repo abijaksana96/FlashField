@@ -33,7 +33,7 @@ function DashboardPage() {
                     navigate('/admin/usermanagement', { replace: true });
                     break;
                 case 'researcher':
-                    navigate('/researcher/homepage', { replace: true });
+                    navigate('/researcher/dashboard', { replace: true });
                     break;
                 case 'volunteer':
                 default:

@@ -146,6 +146,7 @@ def delete_submission(db: Session, submission_id: int):
         db.delete(db_obj)
         db.commit()
     return db_obj
+    
 
 def get_submissions_by_user(db: Session, user_id: int, skip: int = 0, limit: int = 100):
     """

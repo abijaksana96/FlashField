@@ -62,6 +62,82 @@ const EmptyState = () => (
     </tr>
 );
 
+// Komponen Pagination
+const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+    const getPageNumbers = () => {
+        const pages = [];
+        const maxVisible = 5;
+        
+        if (totalPages <= maxVisible) {
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            const start = Math.max(1, currentPage - 2);
+            const end = Math.min(totalPages, start + maxVisible - 1);
+            
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+        }
+        
+        return pages;
+    };
+
+    const pageNumbers = getPageNumbers();
+
+    if (totalPages <= 1) return null;
+
+    return (
+        <div className="flex items-center justify-between px-6 py-4 bg-light-navy border-t border-navy">
+            <div className="flex justify-between items-center w-full">
+                <div className="text-sm text-slate">
+                    Halaman {currentPage} dari {totalPages}
+                </div>
+                <div className="flex items-center space-x-2">
+                    <button
+                        onClick={() => onPageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className={`px-3 py-2 text-sm rounded-md ${
+                            currentPage === 1
+                                ? 'text-slate/50 cursor-not-allowed'
+                                : 'text-slate hover:text-cyan hover:bg-navy/50'
+                        }`}
+                    >
+                        ← Sebelumnya
+                    </button>
+                    
+                    {pageNumbers.map(page => (
+                        <button
+                            key={page}
+                            onClick={() => onPageChange(page)}
+                            className={`px-3 py-2 text-sm rounded-md ${
+                                page === currentPage
+                                    ? 'bg-cyan text-navy font-semibold'
+                                    : 'text-slate hover:text-cyan hover:bg-navy/50'
+                            }`}
+                        >
+                            {page}
+                        </button>
+                    ))}
+                    
+                    <button
+                        onClick={() => onPageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className={`px-3 py-2 text-sm rounded-md ${
+                            currentPage === totalPages
+                                ? 'text-slate/50 cursor-not-allowed'
+                                : 'text-slate hover:text-cyan hover:bg-navy/50'
+                        }`}
+                    >
+                        Selanjutnya →
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const FormattedJsonData = ({ data, schema }) => {
     if (typeof data !== 'object' || data === null || Object.keys(data).length === 0) {
         return <span className="text-slate/70 italic">N/A</span>;
@@ -93,13 +169,15 @@ function Kontribusi() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [experimentsMap, setExperimentsMap] = useState({});
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
-    const fetchDashboardData = async () => {
+    const fetchDashboardData = async (page = 1) => {
         if (!user) { setLoading(false); return; }
         setLoading(true);
         setError('');
         try {
-            const submissionsResponse = await apiClient.get('/users/me/submissions');
+            const submissionsResponse = await apiClient.get('/users/me/submissions', { params: { page } });
             const subs = submissionsResponse.data;
             setSubmissions(subs);
             const experimentIds = [...new Set(subs.map(s => s.experiment_id))];
@@ -110,6 +188,7 @@ function Kontribusi() {
                 experimentResponses.forEach(res => { expMap[res.data.id] = res.data; });
                 setExperimentsMap(expMap);
             }
+            setTotalPages(submissionsResponse.totalPages);
         } catch (err) {
             setError("Tidak dapat memuat riwayat kontribusi Anda.");
         } finally {
@@ -118,8 +197,8 @@ function Kontribusi() {
     };
 
     useEffect(() => {
-        fetchDashboardData();
-    }, [user]);
+        fetchDashboardData(currentPage);
+    }, [user, currentPage]);
 
     const formatDate = (dateString) => new Date(dateString).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
 
@@ -181,6 +260,7 @@ function Kontribusi() {
                         </tbody>
                     </table>
                 </div>
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
         </div>
     );
