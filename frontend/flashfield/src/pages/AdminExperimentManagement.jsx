@@ -3,16 +3,12 @@ import { Link } from 'react-router-dom';
 import apiClient from '../api/axiosConfig';
 import { useAuth } from '../context/AuthContext';
 
-// --- Komponen-komponen UI yang Dipercantik ---
-
 const LoadingSkeleton = () => (
     <div className="space-y-12 animate-pulse">
-        {/* Skeleton untuk Statistik */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="h-28 bg-light-navy rounded-lg"></div>
             <div className="h-28 bg-light-navy rounded-lg"></div>
         </div>
-        {/* Skeleton untuk Tabel Terbaru */}
         <div className="bg-light-navy rounded-lg">
             <div className="p-6 h-16 bg-slate-700/30 rounded-t-lg"></div>
             <div className="p-4 space-y-3">
@@ -21,7 +17,6 @@ const LoadingSkeleton = () => (
                 <div className="h-10 bg-slate-700 rounded w-full"></div>
             </div>
         </div>
-        {/* Skeleton untuk Accordion */}
         <div className="bg-light-navy rounded-lg">
             <div className="p-6 h-16 bg-slate-700/30 rounded-t-lg"></div>
             <div className="p-6 space-y-2">
@@ -59,7 +54,6 @@ const StatCard = ({ title, value, icon }) => (
     </div>
 );
 
-// Komponen untuk satu baris eksperimen, dengan kolom Submisi
 const ExperimentRow = ({ experiment, onDelete }) => {
     const formatDate = (dateString) => new Date(dateString).toLocaleDateString('id-ID', { dateStyle: 'long' });
     return (
@@ -69,7 +63,6 @@ const ExperimentRow = ({ experiment, onDelete }) => {
                 <p className="text-xs text-slate">oleh {experiment.owner?.full_name || 'Pengguna Dihapus'}</p>
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-slate">{formatDate(experiment.created_at)}</td>
-            {/* PERBAIKAN: Menambahkan kolom jumlah submisi */}
             <td className="px-6 py-4 whitespace-nowrap text-sm text-cyan text-center">{experiment.submissions?.length || 0}</td>
             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div className="flex items-center justify-end space-x-2">

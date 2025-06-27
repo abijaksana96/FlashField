@@ -35,7 +35,6 @@ export const AuthProvider = ({ children }) => {
         setToken(accessToken);
         setUser(userData);
         
-        // Redirect ke path yang diminta atau default dashboard
         if (redirectPath) {
             navigate(redirectPath);
         } else {

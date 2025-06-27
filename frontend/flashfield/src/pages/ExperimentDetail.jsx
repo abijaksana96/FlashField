@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import apiClient from '../api/axiosConfig';
 
-// Komponen-komponen UI (LoadingSpinner, ErrorMessage, InfoPill) tidak berubah
 const LoadingSpinner = () => (
     <div className="text-center py-20">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto"></div>
@@ -24,7 +23,7 @@ const InfoPill = ({ icon, text }) => (
 
 function ExperimentDetail() {
     const { id } = useParams();
-    const [experiment, setExperiment] = useState(null); // Ganti nama state agar lebih umum
+    const [experiment, setExperiment] = useState(null); 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -32,8 +31,6 @@ function ExperimentDetail() {
         const fetchExperiment = async () => {
             setLoading(true);
             try {
-                // PERBAIKAN DI SINI: Panggil endpoint utama, bukan /fields
-                // Endpoint ini akan mengembalikan semua data, termasuk 'owner'.
                 const response = await apiClient.get(`/experiments/${id}`);
                 setExperiment(response.data);
             } catch (err) {
@@ -60,11 +57,9 @@ function ExperimentDetail() {
 
     return (
         <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            {/* --- Header Detail Eksperimen --- */}
             <div className="border-b border-navy/50 pb-6 mb-8">
                 <h1 className="text-4xl md:text-5xl font-extrabold text-lightest-slate mb-3">{experiment.title}</h1>
                 <p className="text-slate mb-4">
-                    {/* Sekarang ini akan berfungsi karena data 'owner' ada */}
                     Dibuat oleh: <span className="font-medium text-light-slate">{experiment.owner.full_name}</span>
                 </p>
                 <div className="flex flex-wrap gap-4">
@@ -79,13 +74,11 @@ function ExperimentDetail() {
                 </div>
             </div>
             
-            {/* --- Deskripsi Eksperimen --- */}
             <h2 className="text-2xl font-bold text-lightest-slate mb-4">Deskripsi Proyek</h2>
             <div className="prose prose-lg prose-invert max-w-none text-light-slate mb-12">
                 <p>{experiment.description}</p>
             </div>
 
-            {/* --- Pratinjau Input yang Dibutuhkan --- */}
             <div className="bg-light-navy p-6 rounded-lg">
                  <h2 className="text-2xl font-bold text-lightest-slate mb-4">Data yang Diperlukan</h2>
                  {experiment.input_fields && experiment.input_fields.length > 0 ? (
@@ -102,7 +95,6 @@ function ExperimentDetail() {
                  )}
             </div>
             
-            {/* --- Tombol Aksi Utama --- */}
             <div className="mt-12 text-center">
                 <Link 
                     to={`/experiments/${id}/submit`} 

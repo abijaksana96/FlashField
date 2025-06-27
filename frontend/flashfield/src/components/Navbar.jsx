@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // Impor useAuth untuk mendapatkan data pengguna
-
+import { useAuth } from '../context/AuthContext'; 
 const Navbar = () => {
-    // Dapatkan semua yang kita butuhkan dari AuthContext
     const { user, logout, isAuthenticated } = useAuth();
     const [isDropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
 
-    // useEffect untuk menutup dropdown (ini sudah benar)
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -21,9 +18,8 @@ const Navbar = () => {
         };
     }, []);
 
-    // Fungsi untuk merender menu navigasi berdasarkan peran
     const renderNavLinks = () => {
-        if (!user) return null; // Jika user belum ter-load, jangan tampilkan menu
+        if (!user) return null;
 
         switch (user.role) {
             case 'admin':
@@ -31,18 +27,11 @@ const Navbar = () => {
                     <>
                         <Link to="/admin/usermanagement" className="text-light-slate hover:text-cyan transition-colors">Kelola User</Link>
                         <Link to="/admin/experimentmanagement" className="text-light-slate hover:text-cyan transition-colors">Kelola Eksperimen</Link>
-                        <Link to="/admin/experiments" className="text-light-slate hover:text-cyan transition-colors">Jelajahi Eksperimen</Link>
                         <Link to="/admin/stats" className="text-light-slate hover:text-cyan transition-colors">Visualisasi</Link>
                     </>
                 );
             case 'researcher':
-                return (
-                    <>
-                        <Link to="/researcher/dashboard" className="text-light-slate hover:text-cyan transition-colors">Dashboard</Link>
-                        <Link to="/researcher/experiments" className="text-light-slate hover:text-cyan transition-colors">Jelajahi Eksperimen</Link>
-                        <Link to="/experiments/create" className="text-light-slate hover:text-cyan transition-colors">Buat Eksperimen</Link>
-                    </>
-                );
+                return null;;
             case 'volunteer':
             default:
                 return (
@@ -58,18 +47,15 @@ const Navbar = () => {
     return (
         <header className="sticky top-0 z-50 py-4 px-6 md:px-10 backdrop-blur-md bg-navy/80 shadow-md shadow-black/20">
             <nav className="flex justify-between items-center max-w-7xl mx-auto">
-                {/* Logo akan selalu mengarah ke dashboard jika sudah login */}
                 <Link to={isAuthenticated ? "/homepage" : "/"} className="text-2xl font-bold text-lightest-slate">
                     Flash<span className="text-cyan">Field</span>
                 </Link>
 
-                {/* === Menu Navigasi Dinamis === */}
                 <div className="hidden md:flex items-center space-x-8">
                     {isAuthenticated && renderNavLinks()}
                 </div>
 
                 <div className="flex items-center space-x-4">
-                    {/* Gunakan isAuthenticated dari context untuk menampilkan tombol yang sesuai */}
                     {isAuthenticated ? (
                         <div className="relative" ref={dropdownRef}>
                             <button onClick={() => setDropdownOpen(!isDropdownOpen)} className="p-2 rounded-full text-light-slate hover:text-cyan focus:outline-none focus:ring-2 focus:ring-cyan-500">
@@ -83,7 +69,6 @@ const Navbar = () => {
                                         <span>Profil Saya</span>
                                     </Link>
                                     <div className="border-t border-navy/50 my-1"></div>
-                                    {/* Gunakan fungsi logout dari context */}
                                     <button onClick={logout} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 rounded-md hover:bg-navy">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" /></svg>
                                         <span>Logout</span>
@@ -92,7 +77,6 @@ const Navbar = () => {
                             </div>
                         </div>
                     ) : (
-                        // Ini akan ditampilkan di LandingPage atau jika belum login
                         <>
                             <Link to="/login" className="text-sm font-medium py-2 px-4 rounded-md text-light-slate hover:text-cyan transition-colors">Login</Link>
                             <Link to="/register" className="btn-cyan text-sm font-medium py-2 px-4 rounded-md">Daftar</Link>

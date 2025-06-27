@@ -13,7 +13,6 @@ function HomePage() {
     ];
     const timeoutRef = useRef(null);
 
-    // Double-check: Pastikan user adalah volunteer
     useEffect(() => {
         if (!authLoading && user && user.role !== 'volunteer') {
             window.location.href = '/unauthorized';
@@ -34,8 +33,7 @@ function HomePage() {
         );
         return () => resetTimeout();
     }, [currentSlide]);
-
-    // Double-check: Pastikan user adalah volunteer atau admin
+    
     useEffect(() => {
         if (!authLoading && user && !['volunteer', 'admin'].includes(user.role)) {
             window.location.href = '/unauthorized';

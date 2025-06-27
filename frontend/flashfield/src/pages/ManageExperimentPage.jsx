@@ -7,11 +7,8 @@ import {
     Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend
 } from 'chart.js';
 
-// Registrasi komponen-komponen Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-
-// --- Komponen-komponen UI ---
 const LoadingSkeleton = () => <div className="animate-pulse"><div className="h-10 bg-slate-700 rounded w-1/2 mb-8"></div><div className="bg-light-navy rounded-lg"><div className="p-6 h-16 bg-slate-700/30 rounded-t-lg"></div><div className="p-4 space-y-3"><div className="h-12 bg-slate-700 rounded"></div><div className="h-12 bg-slate-700 rounded"></div></div></div></div>;
 const ErrorMessage = ({ message, onRetry }) => <div className="text-center py-20 px-6 bg-light-navy rounded-lg"><h3 className="text-lg font-semibold text-red-400">Terjadi Kesalahan</h3><p className="mt-1 text-sm text-slate">{message}</p>{onRetry && <button onClick={onRetry} className="mt-6 btn-cyan text-sm font-bold py-2 px-5 rounded-md">Coba Lagi</button>}</div>;
 const EmptyState = ({ title, message }) => <tr><td colSpan="5" className="text-center py-24 px-6"><svg className="mx-auto h-12 w-12 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg><h3 className="mt-2 text-lg font-semibold text-lightest-slate">{title}</h3><p className="mt-1 text-sm text-slate">{message}</p></td></tr>;
@@ -20,7 +17,6 @@ const FormattedJsonData = ({ data }) => {
     return <div className="flex flex-col gap-1.5">{Object.entries(data).map(([key, value]) => (<div key={key} className="text-xs p-2 bg-navy/50 rounded flex justify-between items-center"><span className="font-semibold text-slate capitalize">{key.replace(/_/g, ' ')}:</span><span className="text-light-slate ml-2 font-mono break-all text-right">{Array.isArray(value) ? value.join('; ') : String(value)}</span></div>))}</div>;
 };
 
-// Komponen Pagination yang Dipercantik
 const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPerPage }) => {
     const getPageNumbers = () => {
         const pages = [];
@@ -43,8 +39,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPe
     };
 
     const pageNumbers = getPageNumbers();
-    
-    // Calculate displayed items range
     const startItem = (currentPage - 1) * itemsPerPage + 1;
     const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
@@ -53,16 +47,13 @@ const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPe
     return (
         <div className="bg-light-navy border-t border-navy/50">
             <div className="flex flex-col sm:flex-row justify-between items-center px-6 py-4 gap-4">
-                {/* Info Text */}
                 <div className="text-sm text-slate">
                     Menampilkan <span className="font-medium text-lightest-slate">{startItem}</span> sampai{' '}
                     <span className="font-medium text-lightest-slate">{endItem}</span> dari{' '}
                     <span className="font-medium text-lightest-slate">{totalItems}</span> total submisi
                 </div>
                 
-                {/* Navigation */}
                 <div className="flex items-center space-x-1">
-                    {/* Previous Button */}
                     <button
                         onClick={() => onPageChange(currentPage - 1)}
                         disabled={currentPage === 1}
@@ -78,7 +69,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPe
                         Sebelumnya
                     </button>
                     
-                    {/* Page Numbers */}
                     <div className="flex items-center space-x-1">
                         {pageNumbers.map(page => (
                             <button
@@ -95,7 +85,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPe
                         ))}
                     </div>
                     
-                    {/* Next Button */}
                     <button
                         onClick={() => onPageChange(currentPage + 1)}
                         disabled={currentPage === totalPages}
@@ -116,16 +105,12 @@ const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPe
     );
 };
 
-
-// --- Komponen Cerdas untuk Tab Statistik ---
 const StatsTab = ({ submissions, experiment }) => {
-    // Gunakan useMemo untuk menghitung statistik hanya saat data berubah
     const analysis = useMemo(() => {
         if (!submissions || submissions.length === 0 || !experiment?.input_fields) {
             return [];
         }
 
-        // Analisis setiap field yang didefinisikan di skema eksperimen
         return experiment.input_fields.map(field => {
             if (field.type === 'number') {
                 const values = submissions.map(s => parseFloat(s.data_json[field.name])).filter(v => !isNaN(v));
@@ -140,9 +125,9 @@ const StatsTab = ({ submissions, experiment }) => {
             if (['select', 'radio', 'checkbox'].includes(field.type)) {
                 const counts = submissions.reduce((acc, s) => {
                     const value = s.data_json[field.name];
-                    if (Array.isArray(value)) { // Untuk checkbox
+                    if (Array.isArray(value)) {
                         value.forEach(item => acc[item] = (acc[item] || 0) + 1);
-                    } else if (value) { // Untuk select/radio
+                    } else if (value) { 
                         acc[value] = (acc[value] || 0) + 1;
                     }
                     return acc;
@@ -158,7 +143,7 @@ const StatsTab = ({ submissions, experiment }) => {
                 };
             }
             return null;
-        }).filter(Boolean); // Hapus hasil null
+        }).filter(Boolean); 
     }, [submissions, experiment]);
 
     if (submissions.length === 0) {
@@ -205,13 +190,9 @@ function ManageExperimentPage() {
     const [activeTab, setActiveTab] = useState('submissions');
     const [deletingSubmissionId, setDeletingSubmissionId] = useState(null);
     const [notification, setNotification] = useState(null);
-    
-    // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
     const [totalSubmissions, setTotalSubmissions] = useState(0);
-
-    // Fungsi untuk menampilkan notifikasi
     const showNotification = (message, type = 'success') => {
         setNotification({ message, type });
         setTimeout(() => setNotification(null), 3000);
@@ -231,17 +212,13 @@ function ManageExperimentPage() {
             setExperiment(expRes.data);
             setSubmissions(subRes.data);
             
-            // Get total count for pagination (assuming backend returns this)
-            // If not available, estimate from current data
             if (subRes.data.length < itemsPerPage && page === 1) {
                 setTotalSubmissions(subRes.data.length);
             } else {
-                // Make another request to get total count
                 try {
                     const countRes = await apiClient.get(`/experiments/${experimentId}/submissions`);
                     setTotalSubmissions(countRes.data.length);
                 } catch {
-                    // Fallback: estimate total
                     setTotalSubmissions(page * itemsPerPage + (subRes.data.length === itemsPerPage ? itemsPerPage : 0));
                 }
             }
@@ -278,8 +255,6 @@ function ManageExperimentPage() {
 
     const handleDeleteSubmission = async (submissionId) => {
         const submission = submissions.find(sub => sub.id === submissionId);
-        
-        // Pastikan submission ditemukan
         if (!submission) {
             showNotification('Submisi tidak ditemukan.', 'error');
             return;
@@ -296,21 +271,15 @@ Tindakan ini tidak dapat dibatalkan.`;
         if (window.confirm(confirmMessage)) {
             setDeletingSubmissionId(submissionId);
             try {
-                // Gunakan endpoint yang sudah ada di backend
                 await apiClient.delete(`/experiments/${experimentId}/submissions/${submissionId}`);
-                
-                // Update state langsung untuk UX yang lebih responsif
                 setSubmissions(prev => prev.filter(sub => sub.id !== submissionId));
                 showNotification('Submisi berhasil dihapus.', 'success');
                 
             } catch (err) {
                 console.error('Error deleting submission:', err);
-                
-                // Error handling yang lebih detail
                 let errorMessage = 'Terjadi kesalahan yang tidak diketahui';
                 
                 if (err.response) {
-                    // Server merespons dengan error
                     if (err.response.status === 404) {
                         errorMessage = 'Submisi tidak ditemukan di server';
                     } else if (err.response.status === 403) {
@@ -321,16 +290,12 @@ Tindakan ini tidak dapat dibatalkan.`;
                         errorMessage = err.response.data?.detail || err.response.data?.message || `Error ${err.response.status}`;
                     }
                 } else if (err.request) {
-                    // Request dibuat tapi tidak ada respons
                     errorMessage = 'Tidak dapat terhubung ke server';
                 } else {
-                    // Error lainnya
                     errorMessage = err.message;
                 }
                 
                 showNotification(`Gagal menghapus submisi: ${errorMessage}`, 'error');
-                
-                // Refresh data jika ada error untuk memastikan konsistensi
                 fetchData();
             } finally {
                 setDeletingSubmissionId(null);
@@ -341,17 +306,14 @@ Tindakan ini tidak dapat dibatalkan.`;
         if (!dateString) return 'N/A';
         
         try {
-            // Parse tanggal dan pastikan menggunakan timezone lokal
             const date = new Date(dateString);
             
-            // Cek apakah tanggal valid
             if (isNaN(date.getTime())) return 'Invalid Date';
             
-            // Format dengan opsi yang konsisten
             return date.toLocaleString('id-ID', { 
                 dateStyle: 'long', 
                 timeStyle: 'short',
-                timeZone: 'Asia/Jakarta' // Gunakan timezone Indonesia
+                timeZone: 'Asia/Jakarta'
             });
         } catch (error) {
             console.error('Error formatting date:', error);
@@ -359,7 +321,6 @@ Tindakan ini tidak dapat dibatalkan.`;
         }
     };
 
-    // --- Fungsi BARU untuk Export CSV ---
     const handleExportCSV = () => {
         if (submissions.length === 0) { alert("Tidak ada data untuk diekspor."); return; }
         const headers = ['submission_id', 'user_id', 'timestamp', 'latitude', 'longitude', ...experiment.input_fields.map(f => f.name)];
@@ -391,7 +352,6 @@ Tindakan ini tidak dapat dibatalkan.`;
 
     return (
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            {/* Notifikasi Toast */}
             {notification && (
                 <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transform transition-all duration-300 ${
                     notification.type === 'error' 
@@ -519,7 +479,6 @@ Tindakan ini tidak dapat dibatalkan.`;
                         <p className="text-slate mt-2 mb-6">Kelola pengaturan dan konfigurasi eksperimen Anda.</p>
                         
                         <div className="space-y-4">
-                            {/* Tombol Edit Eksperimen */}
                             <div className="p-4 bg-navy/50 rounded-lg border border-slate-700">
                                 <h4 className="font-semibold text-lightest-slate mb-2">Edit Eksperimen</h4>
                                 <p className="text-sm text-slate mb-4">Ubah judul, deskripsi, deadline, atau field input eksperimen.</p>
@@ -534,7 +493,6 @@ Tindakan ini tidak dapat dibatalkan.`;
                                 </Link>
                             </div>
 
-                            {/* Zona Danger */}
                             <div className="p-4 bg-red-900/20 rounded-lg border border-red-700">
                                 <h4 className="font-semibold text-red-400 mb-2">Zona Bahaya</h4>
                                 <p className="text-sm text-slate mb-4">Tindakan ini akan menghapus eksperimen beserta semua data submisi. Tindakan ini tidak dapat diurungkan.</p>

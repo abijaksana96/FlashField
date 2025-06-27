@@ -11,10 +11,7 @@ import {
   Title, Tooltip, Legend, Filler
 } from 'chart.js';
 
-// Registrasi semua komponen Chart.js yang dibutuhkan
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Title, Tooltip, Legend, Filler);
-
-// --- Komponen UI yang Profesional ---
 
 const LoadingSkeleton = () => (
     <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-12 animate-pulse">
@@ -35,7 +32,6 @@ const ErrorMessage = ({ message, onRetry }) => (
     </div>
 );
 
-// Komponen untuk kartu insight statistik
 const InsightCard = ({ title, value, subtitle, icon, trend }) => (
     <div className="bg-light-navy rounded-lg shadow-lg p-6">
         <div className="flex items-center justify-between">
@@ -61,7 +57,6 @@ const InsightCard = ({ title, value, subtitle, icon, trend }) => (
     </div>
 );
 
-// Komponen untuk leaderboard
 const LeaderboardCard = ({ title, data, icon, valueLabel }) => (
     <div className="bg-light-navy rounded-lg shadow-lg p-6">
         <div className="flex items-center space-x-3 mb-4">
@@ -105,8 +100,6 @@ const HeatmapLayer = ({ points }) => {
     }, [map, points]);
     return null;
 };
-
-// --- Halaman Utama Statistik ---
 
 function AdminStatsAndHeatmapPage() {
     const [chartData, setChartData] = useState({
@@ -155,23 +148,18 @@ function AdminStatsAndHeatmapPage() {
                     res.data.map(sub => ({...sub, experiment_id: allExperiments[index].id, experiment_title: allExperiments[index].title}))
                 );
 
-                // 1. Proses data untuk Grafik Tren Submisi
                 const submissionsByDate = allSubmissions.reduce((acc, sub) => {
                     const date = new Date(sub.timestamp).toISOString().split('T')[0];
                     acc[date] = (acc[date] || 0) + 1;
                     return acc;
                 }, {});
                 const sortedDates = Object.keys(submissionsByDate).sort();
-                
-                // 2. Proses data untuk Grafik Komposisi Pengguna
+            
                 const rolesCount = manageableUsers.reduce((acc, user) => {
                     acc[user.role] = (acc[user.role] || 0) + 1;
                     return acc;
                 }, {});
 
-                // 3. ANALISIS INSIGHT MENDALAM
-
-                // A. Top Researchers (berdasarkan jumlah eksperimen)
                 const researcherStats = manageableUsers
                     .filter(user => user.role === 'researcher')
                     .map(researcher => {
@@ -188,7 +176,6 @@ function AdminStatsAndHeatmapPage() {
                     })
                     .sort((a, b) => b.value - a.value);
 
-                // B. Top Experiments (berdasarkan jumlah submisi)
                 const experimentStats = allExperiments.map(exp => {
                     const submissions = allSubmissions.filter(sub => sub.experiment_id === exp.id);
                     return {
@@ -199,7 +186,6 @@ function AdminStatsAndHeatmapPage() {
                     };
                 }).sort((a, b) => b.value - a.value);
 
-                // C. Top Volunteers (berdasarkan jumlah kontribusi)
                 const volunteerStats = manageableUsers
                     .filter(user => user.role === 'volunteer')
                     .map(volunteer => {
@@ -214,7 +200,6 @@ function AdminStatsAndHeatmapPage() {
                     })
                     .sort((a, b) => b.value - a.value);
 
-                // D. General Statistics
                 const now = new Date();
                 const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
                 const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -230,7 +215,6 @@ function AdminStatsAndHeatmapPage() {
                     return hasRecentSubmissions && notExpired;
                 });
 
-                // E. Calculate trends (comparing last 7 days vs previous 7 days)
                 const previous7Days = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
                 const previousWeekSubmissions = allSubmissions.filter(sub => {
                     const date = new Date(sub.timestamp);
@@ -281,7 +265,6 @@ function AdminStatsAndHeatmapPage() {
                     }
                 });
                 
-                // 4. Proses data untuk Heatmap
                 const points = allSubmissions.filter(sub => sub.geo_lat && sub.geo_lng).map(sub => [sub.geo_lat, sub.geo_lng, 1]);
                 setSubmissionPoints(points);
 
@@ -301,7 +284,6 @@ function AdminStatsAndHeatmapPage() {
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-12">
             <h1 className="text-4xl font-extrabold text-lightest-slate">Statistik & Visualisasi Platform</h1>
 
-            {/* Quick Insights Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <InsightCard
                     title="Total Submisi"
@@ -330,7 +312,6 @@ function AdminStatsAndHeatmapPage() {
                 />
             </div>
 
-            {/* Leaderboards */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <LeaderboardCard
                     title="Top Researchers"
@@ -352,9 +333,7 @@ function AdminStatsAndHeatmapPage() {
                 />
             </div>
 
-            {/* Layout Grid 2x2 untuk Visualisasi */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-                {/* Kartu Grafik Tren */}
                 <div className="bg-light-navy rounded-lg shadow-lg p-6">
                     <h2 className="text-xl font-bold text-lightest-slate text-center mb-4">Tren Aktivitas Submisi</h2>
                     <div className="h-80">
@@ -362,7 +341,6 @@ function AdminStatsAndHeatmapPage() {
                     </div>
                 </div>
 
-                {/* Kartu Grafik Komposisi Pengguna */}
                 <div className="bg-light-navy rounded-lg shadow-lg p-6 flex flex-col items-center justify-center">
                      <h2 className="text-xl font-bold text-lightest-slate text-center mb-4">Komposisi Pengguna</h2>
                     <div className="w-64 h-64">
@@ -370,7 +348,6 @@ function AdminStatsAndHeatmapPage() {
                     </div>
                 </div>
                 
-                {/* Kartu Heatmap (dibuat lebih besar) */}
                 <div className="bg-light-navy rounded-lg shadow-lg overflow-hidden lg:col-span-2">
                     <div className="p-6">
                         <h2 className="text-xl font-bold text-lightest-slate">Heatmap Konsentrasi Submisi</h2>
@@ -379,7 +356,6 @@ function AdminStatsAndHeatmapPage() {
                     <div className="h-[500px] w-full bg-navy">
                         {submissionPoints.length > 0 ? (
                             <MapContainer center={[-2.5489, 118.0149]} zoom={5} style={{ height: '100%', width: '100%' }}>
-                                {/* PERBAIKAN: Gunakan tema peta standar yang lebih cerah */}
                                 <TileLayer
                                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

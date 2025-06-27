@@ -1,8 +1,6 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-// Komponen untuk halaman 404
 export const NotFound = () => (
     <div className="min-h-screen bg-navy flex items-center justify-center px-6">
         <div className="text-center">
@@ -35,7 +33,6 @@ export const NotFound = () => (
     </div>
 );
 
-// Komponen untuk akses tidak diizinkan
 export const Unauthorized = () => {
     const { user, logout } = useAuth();
     

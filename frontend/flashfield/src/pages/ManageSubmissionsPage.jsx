@@ -9,7 +9,6 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-// --- Komponen-komponen UI ---
 const LoadingSkeleton = () => (
     <div className="animate-pulse">
         <div className="h-10 bg-slate-700 rounded w-1/2 mb-8"></div>
@@ -30,7 +29,6 @@ const FormattedJsonData = ({ data }) => {
     return <div className="flex flex-col gap-1.5">{Object.entries(data).map(([key, value]) => (<div key={key} className="text-xs p-2 bg-navy/50 rounded flex justify-between items-center"><span className="font-semibold text-slate capitalize">{key.replace(/_/g, ' ')}:</span><span className="text-light-slate ml-2 font-mono break-all text-right">{Array.isArray(value) ? value.join(', ') : String(value)}</span></div>))}</div>;
 };
 
-// --- Komponen untuk Tab Statistik ---
 const StatsTab = ({ submissions, experiment }) => {
     const stats = useMemo(() => {
         if (!submissions || submissions.length === 0 || !experiment?.input_fields) {
@@ -96,7 +94,6 @@ const StatsTab = ({ submissions, experiment }) => {
     );
 };
 
-// --- Halaman Utama Pengelolaan Eksperimen ---
 function ManageExperimentPage() {
     const { id: experimentId } = useParams();
     const { user, loading: authLoading } = useAuth();
@@ -135,27 +132,22 @@ function ManageExperimentPage() {
         if (!authLoading && experimentId) { fetchData(); }
     }, [authLoading, experimentId, fetchData]);
 
-    const handleDeleteExperiment = async () => { /* ... (fungsi tidak berubah) ... */ };
     const formatDate = (dateString) => new Date(dateString).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
-
-    // --- FUNGSI BARU UNTUK EXPORT CSV ---
     const handleExportCSV = () => {
         if (submissions.length === 0) {
             alert("Tidak ada data untuk diekspor.");
             return;
         }
 
-        // 1. Tentukan header CSV
         const headers = ['submission_id', 'user_id', 'timestamp', 'latitude', 'longitude'];
         experiment.input_fields.forEach(field => headers.push(field.name));
 
-        // 2. Buat konten CSV
         let csvContent = headers.join(',') + '\n';
         submissions.forEach(sub => {
             const row = [
                 sub.id,
                 sub.user_id,
-                `"${formatDate(sub.timestamp)}"`, // Bungkus tanggal dengan kutip
+                `"${formatDate(sub.timestamp)}"`,
                 sub.geo_lat || '',
                 sub.geo_lng || ''
             ];
@@ -165,16 +157,15 @@ function ManageExperimentPage() {
                 if (value === undefined || value === null) {
                     value = '';
                 } else if (Array.isArray(value)) {
-                    value = `"${value.join('; ')}"`; // Gabungkan array dengan semikolon
+                    value = `"${value.join('; ')}"`; 
                 } else if (typeof value === 'string' && value.includes(',')) {
-                    value = `"${value}"`; // Bungkus string dengan koma
+                    value = `"${value}"`; 
                 }
                 row.push(value);
             });
             csvContent += row.join(',') + '\n';
         });
 
-        // 3. Buat file dan unduh
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
@@ -192,16 +183,12 @@ function ManageExperimentPage() {
 
     return (
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            {/* ... (Header halaman tidak berubah) ... */}
-
             <div className="border-b border-navy/50 mb-8">
-                {/* ... (Navigasi Tab tidak berubah) ... */}
             </div>
 
             <div>
                 {activeTab === 'submissions' && (
                     <div className="bg-light-navy rounded-lg shadow-lg overflow-hidden">
-                        {/* --- PERBAIKAN: Tambahkan tombol Export di sini --- */}
                         <div className="p-6 flex justify-between items-center">
                             <h2 className="text-xl font-bold text-lightest-slate">Data Submisi</h2>
                             <button onClick={handleExportCSV} className="btn-cyan text-sm font-bold py-2 px-4 rounded-md flex items-center gap-2">
@@ -221,7 +208,6 @@ function ManageExperimentPage() {
                         </div>
                     </div>
                 )}
-                {/* ... (konten tab lain) ... */}
             </div>
         </div>
     );

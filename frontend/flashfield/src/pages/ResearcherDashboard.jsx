@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import apiClient from '../api/axiosConfig';
 import { useAuth } from '../context/AuthContext';
 
-// --- Komponen-komponen UI yang Profesional ---
 const LoadingSkeleton = () => (
     <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 space-y-12 animate-pulse">
         <div className="flex justify-between items-center">
@@ -60,29 +59,24 @@ const StatCard = ({ title, value, icon }) => (
     </div>
 );
 
-// --- Halaman Utama Dashboard Peneliti (Diperbaiki) ---
 function ResearcherDashboard() {
-    const { user, loading: authLoading } = useAuth(); // Dapatkan juga status loading dari AuthContext
+    const { user, loading: authLoading } = useAuth(); 
     const [experiments, setExperiments] = useState([]);
-    const [loading, setLoading] = useState(true); // State loading untuk halaman ini
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // Double-check: Pastikan user adalah researcher atau admin
     useEffect(() => {
         if (!authLoading && user && !['researcher', 'admin'].includes(user.role)) {
             window.location.href = '/unauthorized';
         }
     }, [user, authLoading]);
 
-    // useCallback agar fungsi tidak dibuat ulang di setiap render
     const fetchMyExperiments = useCallback(async () => {
-        // Jangan jalankan jika user belum ada
         if (!user) return;
         
         setLoading(true);
         setError('');
         try {
-            // Ambil SEMUA eksperimen, lalu filter di frontend
             const response = await apiClient.get('/experiments/');
             const filteredExperiments = response.data.filter(exp => exp.owner?.id === user.id);
             setExperiments(filteredExperiments);
@@ -91,11 +85,8 @@ function ResearcherDashboard() {
         } finally {
             setLoading(false);
         }
-    }, [user]); // Dependensi pada 'user' object
-
-    // useEffect sekarang hanya bertugas memanggil fetchMyExperiments saat auth selesai
+    }, [user]);
     useEffect(() => {
-        // Hanya jalankan fetch jika proses otentikasi selesai
         if (!authLoading) {
             fetchMyExperiments();
         }
@@ -106,8 +97,6 @@ function ResearcherDashboard() {
     }, [experiments]);
 
     const formatDate = (dateString) => new Date(dateString).toLocaleDateString('id-ID', { dateStyle: 'long' });
-
-    // Tampilkan skeleton loading jika context ATAU halaman ini sedang memuat
     if (authLoading || loading) {
         return (
             <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
@@ -116,7 +105,6 @@ function ResearcherDashboard() {
         );
     }
     
-    // Tampilkan pesan error jika terjadi
     if (error) {
         return (
              <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">

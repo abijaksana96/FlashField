@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import apiClient from '../api/axiosConfig';
 
-// Komponen untuk merender satu field input secara dinamis (DIPERBARUI)
 const DynamicFormField = ({ field, value, onChange }) => {
     const commonClasses = "w-full p-3 bg-navy text-lightest-slate rounded-md border border-slate/50 focus:border-cyan focus:ring-1 focus:ring-cyan focus:outline-none transition-colors";
     const placeholder = field.placeholder || `Masukkan ${field.label.toLowerCase()}`;
@@ -19,7 +18,7 @@ const DynamicFormField = ({ field, value, onChange }) => {
                     {field.options?.map(option => <option key={option} value={option}>{option}</option>)}
                 </select>
             );
-        case 'radio': // Tipe input baru
+        case 'radio':
             return (
                 <div className="flex flex-wrap gap-x-6 gap-y-2 pt-2">
                     {field.options?.map(option => (
@@ -30,7 +29,7 @@ const DynamicFormField = ({ field, value, onChange }) => {
                     ))}
                 </div>
             );
-        case 'checkbox': // Tipe input baru
+        case 'checkbox':
             return (
                  <div className="flex flex-wrap gap-x-6 gap-y-2 pt-2">
                     {field.options?.map(option => (
@@ -66,13 +65,11 @@ function Submission() {
     useEffect(() => {
         const fetchExperimentSchema = async () => {
             try {
-                // PERBAIKAN: Gunakan endpoint utama yang sudah lengkap
                 const response = await apiClient.get(`/experiments/${experimentId}`);
                 setExperiment(response.data);
                 const initialFormData = {};
                 if (response.data.input_fields) {
                     response.data.input_fields.forEach(field => {
-                        // Inisialisasi checkbox sebagai array kosong
                         initialFormData[field.name] = field.type === 'checkbox' ? [] : '';
                     });
                 }
@@ -86,7 +83,6 @@ function Submission() {
         fetchExperimentSchema();
     }, [experimentId]);
 
-    // PERBAIKAN: handleInputChange sekarang bisa menangani checkbox group
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
 
@@ -94,10 +90,8 @@ function Submission() {
             setFormData(prevData => {
                 const currentValues = prevData[name] || [];
                 if (checked) {
-                    // Tambahkan nilai ke array jika dicentang
                     return { ...prevData, [name]: [...currentValues, value] };
                 } else {
-                    // Hapus nilai dari array jika tidak dicentang
                     return { ...prevData, [name]: currentValues.filter(item => item !== value) };
                 }
             });

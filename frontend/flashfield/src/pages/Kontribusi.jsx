@@ -3,9 +3,6 @@ import { Link } from 'react-router-dom';
 import apiClient from '../api/axiosConfig';
 import { useAuth } from '../context/AuthContext';
 
-// --- Komponen-komponen UI yang Dipercantik ---
-
-// 1. Skeleton Loading BARU untuk setiap baris tabel
 const SubmissionRowSkeleton = () => (
     <tr className="animate-pulse">
         <td className="px-6 py-4">
@@ -42,7 +39,6 @@ const ErrorMessage = ({ message, onRetry }) => (
     </tr>
 );
 
-// 2. Tampilan Kosong (Empty State) yang dipercantik
 const EmptyState = () => (
     <tr>
         <td colSpan="4" className="text-center py-24 px-6">
@@ -62,7 +58,6 @@ const EmptyState = () => (
     </tr>
 );
 
-// Komponen Pagination yang Dipercantik
 const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPerPage }) => {
     const getPageNumbers = () => {
         const pages = [];
@@ -85,8 +80,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPe
     };
 
     const pageNumbers = getPageNumbers();
-    
-    // Calculate displayed items range
     const startItem = (currentPage - 1) * itemsPerPage + 1;
     const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
@@ -95,16 +88,13 @@ const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPe
     return (
         <div className="bg-light-navy border-t border-navy/50">
             <div className="flex flex-col sm:flex-row justify-between items-center px-6 py-4 gap-4">
-                {/* Info Text */}
                 <div className="text-sm text-slate">
                     Menampilkan <span className="font-medium text-lightest-slate">{startItem}</span> sampai{' '}
                     <span className="font-medium text-lightest-slate">{endItem}</span> dari{' '}
                     <span className="font-medium text-lightest-slate">{totalItems}</span> total kontribusi
                 </div>
                 
-                {/* Navigation */}
                 <div className="flex items-center space-x-1">
-                    {/* Previous Button */}
                     <button
                         onClick={() => onPageChange(currentPage - 1)}
                         disabled={currentPage === 1}
@@ -120,7 +110,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPe
                         Sebelumnya
                     </button>
                     
-                    {/* Page Numbers */}
                     <div className="flex items-center space-x-1">
                         {pageNumbers.map(page => (
                             <button
@@ -137,7 +126,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPe
                         ))}
                     </div>
                     
-                    {/* Next Button */}
                     <button
                         onClick={() => onPageChange(currentPage + 1)}
                         disabled={currentPage === totalPages}
@@ -199,21 +187,16 @@ function Kontribusi() {
         setLoading(true);
         setError('');
         try {
-            // Calculate skip value for pagination
             const skip = (page - 1) * itemsPerPage;
-            
-            // Get paginated submissions
             const submissionsResponse = await apiClient.get(`/users/me/submissions?skip=${skip}&limit=${itemsPerPage}`);
             const subs = submissionsResponse.data;
             setSubmissions(subs);
-            
-            // Get total count for pagination
+        
             const totalResponse = await apiClient.get('/users/me/submissions');
             const totalCount = totalResponse.data.length;
             setTotalSubmissions(totalCount);
             setTotalPages(Math.ceil(totalCount / itemsPerPage));
             
-            // Get experiment details
             const experimentIds = [...new Set(subs.map(s => s.experiment_id))];
             if (experimentIds.length > 0) {
                 const experimentRequests = experimentIds.map(id => apiClient.get(`/experiments/${id}`));
@@ -235,7 +218,6 @@ function Kontribusi() {
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
-        // Smooth scroll to top of table
         document.querySelector('.bg-light-navy.rounded-lg.shadow-lg')?.scrollIntoView({ 
             behavior: 'smooth', 
             block: 'start' 
@@ -279,7 +261,6 @@ function Kontribusi() {
                         </thead>
                         <tbody className="divide-y divide-navy">
                             {loading ? (
-                                // Tampilkan efek loading skeleton (10 rows)
                                 [...Array(itemsPerPage)].map((_, i) => <SubmissionRowSkeleton key={i} />)
                             ) : error ? (
                                 <ErrorMessage message={error} onRetry={fetchDashboardData} />

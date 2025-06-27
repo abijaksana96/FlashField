@@ -30,11 +30,8 @@ function Login() {
             
             console.log('Login berhasil:', response.data);
             
-            // Get redirect path from location state (dari ProtectedRoute)
             const from = location.state?.from?.pathname || null;
             login(response.data.user, response.data.access_token, from);
-            // localStorage.setItem('accessToken', response.data.access_token);
-            // navigate('/homepage');
 
         } catch (err) {
             console.error('Login gagal:', err.response ? err.response.data : err.message);

@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import ExperimentCard from '../components/ExperimentCard';
 import { useAuth } from '../context/AuthContext';
 
-// Komponen Pagination yang Dipercantik
 const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPerPage }) => {
     const getPageNumbers = () => {
         const pages = [];
@@ -27,8 +26,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPe
     };
 
     const pageNumbers = getPageNumbers();
-    
-    // Calculate displayed items range
     const startItem = (currentPage - 1) * itemsPerPage + 1;
     const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
@@ -36,16 +33,13 @@ const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPe
 
     return (
         <div className="flex flex-col sm:flex-row justify-between items-center mt-12 p-6 bg-light-navy rounded-lg shadow-lg gap-4">
-            {/* Info Text */}
             <div className="text-sm text-slate">
                 Menampilkan <span className="font-medium text-lightest-slate">{startItem}</span> sampai{' '}
                 <span className="font-medium text-lightest-slate">{endItem}</span> dari{' '}
                 <span className="font-medium text-lightest-slate">{totalItems}</span> eksperimen
             </div>
-            
-            {/* Navigation */}
+
             <div className="flex items-center space-x-1">
-                {/* Previous Button */}
                 <button
                     onClick={() => onPageChange(currentPage - 1)}
                     disabled={currentPage === 1}
@@ -61,7 +55,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPe
                     Sebelumnya
                 </button>
                 
-                {/* Page Numbers */}
                 <div className="flex items-center space-x-1">
                     {pageNumbers.map(page => (
                         <button
@@ -78,7 +71,6 @@ const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPe
                     ))}
                 </div>
                 
-                {/* Next Button */}
                 <button
                     onClick={() => onPageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
@@ -104,30 +96,23 @@ function Experiments() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [userRole, setUserRole] = useState("researcher");
-    
-    // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(9); // 3x3 grid
+    const [itemsPerPage] = useState(9);
     const [totalExperiments, setTotalExperiments] = useState(0);
 
-    // Double-check: Pastikan route ini hanya diakses oleh role yang tepat
     useEffect(() => {
         if (!authLoading && user) {
-            // Cek URL untuk menentukan role yang diizinkan
             const currentPath = window.location.pathname;
             
             if (currentPath.startsWith('/admin/experiments')) {
-                // Route admin - hanya admin yang boleh
                 if (user.role !== 'admin') {
                     window.location.href = '/unauthorized';
                 }
             } else if (currentPath.startsWith('/researcher/experiments')) {
-                // Route researcher - hanya researcher yang boleh
                 if (user.role !== 'researcher') {
                     window.location.href = '/unauthorized';
                 }
             } else if (currentPath === '/experiments') {
-                // Route volunteer - hanya volunteer yang boleh
                 if (user.role !== 'volunteer') {
                     window.location.href = '/unauthorized';
                 }
@@ -151,12 +136,10 @@ function Experiments() {
         fetchAllExperiments();
     }, []);
 
-    // Calculate pagination
     const totalPages = Math.ceil(totalExperiments / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const currentExperiments = experiments.slice(startIndex, endIndex);
-
     const handlePageChange = (page) => {
         setCurrentPage(page);
         window.scrollTo({ top: 0, behavior: 'smooth' });

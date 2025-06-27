@@ -3,22 +3,18 @@ import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 
 function RegisterPage() {
-    // State untuk menyimpan nilai dari input form
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
 
         try {
-            // Backend sudah memiliki nilai default "volunteer", jadi kita tidak perlu mengirim 'role'
             const response = await axios.post('http://127.0.0.1:8000/auth/register', {
                 full_name: fullName, 
                 email: email, 

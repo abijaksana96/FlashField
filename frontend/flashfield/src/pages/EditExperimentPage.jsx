@@ -3,7 +3,6 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import apiClient from '../api/axiosConfig';
 import { useAuth } from '../context/AuthContext';
 
-// --- Komponen-komponen UI (bisa dipisah ke file sendiri) ---
 const LoadingSkeleton = () => (
     <div className="animate-pulse">
         <div className="h-10 bg-slate-700 rounded w-1/2 mb-8"></div>
@@ -36,28 +35,20 @@ const LoadingOverlay = ({ text }) => (
     </div>
 );
 
-// --- Komponen Utama Halaman Edit Eksperimen ---
 function EditExperimentPage() {
     const { id: experimentId } = useParams();
     const navigate = useNavigate();
     const { user, loading: authLoading } = useAuth();
-
-    // State untuk form utama
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [deadline, setDeadline] = useState('');
     const [requireLocation, setRequireLocation] = useState(true);
     const [inputFields, setInputFields] = useState([]);
-
-    // State untuk form builder
     const [newField, setNewField] = useState({ name: '', label: '', type: 'text', required: true, unit: '', placeholder: '', options: '' });
-
-    // State untuk UI
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
-    // Langkah 1: Mengambil data eksperimen yang ada untuk mengisi form
     useEffect(() => {
         const fetchExperimentData = async () => {
             if (!experimentId) return;
@@ -73,10 +64,8 @@ function EditExperimentPage() {
                 
                 setTitle(exp.title);
                 setDescription(exp.description);
-                // Perbaiki parsing deadline agar konsisten dengan timezone
                 if (exp.deadline) {
                     const date = new Date(exp.deadline);
-                    // Konversi ke timezone lokal untuk input datetime-local
                     const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
                     setDeadline(localDate.toISOString().slice(0, 16));
                 } else {
@@ -105,7 +94,6 @@ function EditExperimentPage() {
         const newDeadline = e.target.value;
         setDeadline(newDeadline);
         
-        // Validasi realtime
         if (newDeadline) {
             const deadlineDate = new Date(newDeadline);
             const now = new Date();
@@ -113,13 +101,11 @@ function EditExperimentPage() {
             if (deadlineDate <= now) {
                 setError('Deadline harus lebih dari waktu saat ini.');
             } else {
-                // Clear error jika deadline valid
                 if (error === 'Deadline harus lebih dari waktu saat ini.') {
                     setError('');
                 }
             }
         } else {
-            // Clear error jika deadline kosong (opsional)
             if (error === 'Deadline harus lebih dari waktu saat ini.') {
                 setError('');
             }
@@ -148,13 +134,11 @@ function EditExperimentPage() {
         setInputFields(prev => prev.filter((_, index) => index !== indexToRemove));
     };
 
-    // Langkah 2: Fungsi handleSubmit sekarang menggunakan metode PUT
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSaving(true);
         setError('');
 
-        // Validasi deadline
         if (deadline) {
             const deadlineDate = new Date(deadline);
             const now = new Date();
@@ -166,7 +150,6 @@ function EditExperimentPage() {
             }
         }
 
-        // Validasi input fields tidak boleh kosong
         if (inputFields.length === 0) {
             setError('Anda harus menambahkan minimal satu field input.');
             setIsSaving(false);
@@ -176,7 +159,6 @@ function EditExperimentPage() {
         const payload = {
             title,
             description,
-            // Perbaiki handling deadline untuk konsistensi timezone
             deadline: deadline ? new Date(deadline + ':00').toISOString() : null,
             require_location: requireLocation,
             input_fields: inputFields,
@@ -207,7 +189,6 @@ function EditExperimentPage() {
                 <h1 className="text-4xl font-extrabold text-lightest-slate mb-8">Edit Eksperimen</h1>
                 
                 <form onSubmit={handleSubmit} className="space-y-10">
-                    {/* Fieldset Informasi Dasar */}
                     <fieldset className="bg-light-navy p-6 rounded-lg space-y-4">
                         <legend className="text-xl font-bold text-cyan -mb-2 px-2">Informasi Dasar</legend>
                         <div>
@@ -237,7 +218,6 @@ function EditExperimentPage() {
                         </div>
                     </fieldset>
 
-                    {/* Fieldset Form Builder */}
                     <fieldset className="bg-light-navy p-6 rounded-lg space-y-4">
                         <legend className="text-xl font-bold text-cyan -mb-2 px-2">Formulir Input</legend>
                         <div className="space-y-2">

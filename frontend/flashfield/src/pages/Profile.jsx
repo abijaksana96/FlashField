@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import apiClient from '../api/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 
-// Komponen untuk loading dan error
 const LoadingSpinner = () => (
     <div className="text-center py-20">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto"></div>
@@ -13,29 +12,22 @@ const ErrorMessage = ({ message }) => <div className="text-center py-20 text-red
 
 function Profile() {
     const navigate = useNavigate();
-
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-
-    // State untuk form edit
     const [isEditing, setIsEditing] = useState(false);
     const [editData, setEditData] = useState({ fullName: '', email: '' });
     const [editError, setEditError] = useState('');
     const [isUpdating, setIsUpdating] = useState(false);
-
-    // State untuk konfirmasi hapus akun
     const [isConfirmingDelete, setConfirmingDelete] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteError, setDeleteError] = useState('');
 
-    // Mengambil data pengguna saat halaman dimuat
     useEffect(() => {
         const fetchUserData = async () => {
             try {
                 const response = await apiClient.get('/users/me');
                 setUser(response.data);
-                // Inisialisasi data untuk form edit
                 setEditData({ 
                     fullName: response.data.full_name, 
                     email: response.data.email 
@@ -54,20 +46,15 @@ function Profile() {
         setEditData({ ...editData, [e.target.name]: e.target.value });
     };
 
-    // Fungsi untuk update profil
     const handleUpdateProfile = async (e) => {
         e.preventDefault();
         setIsUpdating(true);
         setEditError('');
         try {
-            // Backend mengharapkan full_name, bukan fullName
             const payload = { full_name: editData.fullName, email: editData.email };
-            
-            // Memanggil endpoint PUT /users/me yang sudah benar
             const response = await apiClient.put('/users/me', payload); 
-            
-            setUser(response.data); // Perbarui tampilan dengan data baru
-            setIsEditing(false);    // Tutup form edit
+            setUser(response.data); 
+            setIsEditing(false); 
             alert('Profil berhasil diperbarui!');
         } catch (err) {
             console.error("Gagal memperbarui profil:", err);
@@ -77,12 +64,10 @@ function Profile() {
         }
     };
 
-    // Fungsi untuk menangani penghapusan akun
     const handleConfirmDelete = async () => {
         setIsDeleting(true);
         setDeleteError('');
         try {
-            // Memanggil endpoint DELETE /users/me
             await apiClient.delete('/users/me');
             localStorage.removeItem('accessToken');
             alert('Akun Anda telah berhasil dihapus.');
@@ -101,7 +86,6 @@ function Profile() {
 
     return (
         <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            {/* Kartu Informasi Profil */}
             <div className="bg-light-navy p-8 rounded-lg shadow-lg">
                 <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
                     <div className="flex-grow text-center md:text-left">
@@ -118,7 +102,6 @@ function Profile() {
                     )}
                 </div>
 
-                {/* Form Edit */}
                 {isEditing && (
                     <div className="mt-8 border-t border-navy/50 pt-8">
                         <h2 className="text-xl font-bold text-lightest-slate mb-6">Edit Informasi Profil</h2>
@@ -159,7 +142,6 @@ function Profile() {
                 )}
             </div>
 
-            {/* Zona Berbahaya untuk Hapus Akun */}
             <div className="mt-10 bg-red-900/20 border border-red-500/30 p-6 rounded-lg">
                 <h2 className="text-xl font-bold text-red-300">Zona Berbahaya</h2>
                 <p className="text-slate mt-2">Tindakan berikut tidak dapat diurungkan. Harap berhati-hati.</p>

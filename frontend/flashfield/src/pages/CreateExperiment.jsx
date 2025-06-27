@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom'; // Pastikan Link diimpor
+import { useNavigate, Link } from 'react-router-dom'; 
 import apiClient from '../api/axiosConfig';
 
-// Komponen untuk menampilkan satu baris field yang sudah dibuat
 const FormFieldBuilderRow = ({ field, index, onRemove }) => (
     <div className="flex items-center gap-2 p-3 bg-navy rounded-md border border-slate-700">
         <span className="text-cyan font-mono text-xs p-1 bg-slate-700 rounded">{field.type}</span>
@@ -16,7 +15,6 @@ const FormFieldBuilderRow = ({ field, index, onRemove }) => (
     </div>
 );
 
-// Komponen BARU untuk loading overlay yang lebih profesional
 const LoadingOverlay = ({ text }) => (
     <div className="fixed inset-0 bg-navy/80 backdrop-blur-sm flex flex-col items-center justify-center z-50">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
@@ -24,27 +22,18 @@ const LoadingOverlay = ({ text }) => (
     </div>
 );
 
-
-// Komponen utama halaman
 function CreateExperiment() {
     const navigate = useNavigate();
-
-    // State untuk form utama
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [deadline, setDeadline] = useState('');
     const [requireLocation, setRequireLocation] = useState(true);
     const [inputFields, setInputFields] = useState([]);
-
-    // State untuk form builder (untuk menambah field baru)
     const [newField, setNewField] = useState({
         name: '', label: '', type: 'text', required: true, unit: '', placeholder: '', options: ''
     });
-
-    // State untuk UI
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-
     const handleNewFieldChange = (e) => {
         const { name, value, type, checked } = e.target;
         setNewField(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
@@ -53,8 +42,6 @@ function CreateExperiment() {
     const handleDeadlineChange = (e) => {
         const newDeadline = e.target.value;
         setDeadline(newDeadline);
-        
-        // Validasi realtime
         if (newDeadline) {
             const deadlineDate = new Date(newDeadline);
             const now = new Date();
@@ -62,13 +49,11 @@ function CreateExperiment() {
             if (deadlineDate <= now) {
                 setError('Deadline harus lebih dari waktu saat ini.');
             } else {
-                // Clear error jika deadline valid
                 if (error === 'Deadline harus lebih dari waktu saat ini.') {
                     setError('');
                 }
             }
         } else {
-            // Clear error jika deadline kosong (opsional)
             if (error === 'Deadline harus lebih dari waktu saat ini.') {
                 setError('');
             }
@@ -92,7 +77,6 @@ function CreateExperiment() {
         };
 
         setInputFields(prev => [...prev, fieldToAdd]);
-        // Reset form builder
         setNewField({ name: '', label: '', type: 'text', required: true, unit: '', placeholder: '', options: '' });
     };
 
@@ -105,7 +89,6 @@ function CreateExperiment() {
         setLoading(true);
         setError('');
 
-        // Validasi deadline
         if (deadline) {
             const deadlineDate = new Date(deadline);
             const now = new Date();
@@ -117,7 +100,6 @@ function CreateExperiment() {
             }
         }
 
-        // Validasi input fields tidak boleh kosong
         if (inputFields.length === 0) {
             setError('Anda harus menambahkan minimal satu field input.');
             setLoading(false);
@@ -127,7 +109,6 @@ function CreateExperiment() {
         const payload = {
             title,
             description,
-            // Perbaiki handling deadline untuk konsistensi timezone
             deadline: deadline ? new Date(deadline + ':00').toISOString() : null,
             require_location: requireLocation,
             input_fields: inputFields,
@@ -147,17 +128,14 @@ function CreateExperiment() {
 
     return (
         <>
-            {/* Tampilkan overlay saat loading */}
             {loading && <LoadingOverlay text="Mempublikasikan Eksperimen..." />}
             <div className="max-w-4xl mx-auto py-12 px-4">
-                {/* --- PERBAIKAN: Tombol kembali ditambahkan di sini --- */}
                 <Link to="/researcher/dashboard" className="text-sm text-slate hover:text-cyan mb-4 inline-block">
                     &larr; Kembali ke Dashboard
                 </Link>
                 <h1 className="text-4xl font-extrabold text-lightest-slate mb-8">Buat Eksperimen Baru</h1>
                 
                 <form onSubmit={handleSubmit} className="space-y-10">
-                    {/* --- Detail Dasar Eksperimen --- */}
                     <fieldset className="bg-light-navy p-6 rounded-lg space-y-4">
                         <legend className="text-xl font-bold text-cyan -mb-2 px-2">Informasi Dasar</legend>
                         <div>
@@ -186,7 +164,6 @@ function CreateExperiment() {
                         </div>
                     </fieldset>
 
-                    {/* --- Form Builder --- */}
                     <fieldset className="bg-light-navy p-6 rounded-lg space-y-4">
                         <legend className="text-xl font-bold text-cyan -mb-2 px-2">Formulir Input untuk Volunteer</legend>
                         
