@@ -14,6 +14,7 @@ import DashboardPage from './pages/DashboardPage';
 import AdminUserManagement from './pages/AdminUserManagement';
 import './index.css';
 import AdminExperimentManagement from './pages/AdminExperimentManagement';
+import ManageSubmissionsPage from './pages/ManageSubmissionsPage';
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
 
         <Route path="/admin/usermanagement" element={<AdminUserManagement />} />
         <Route path="/admin/experimentmanagement" element={<AdminExperimentManagement />} />
+        <Route path="/admin/experiments/:id/manage" element={<ManageSubmissionsPage />} />
 
         <Route path="/experiments/create" element={<CreateExperiment />} />
       </Route>
