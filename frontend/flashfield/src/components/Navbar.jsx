@@ -31,6 +31,7 @@ const Navbar = () => {
                     <>
                         <Link to="/admin/usermanagement" className="text-light-slate hover:text-cyan transition-colors">Kelola User</Link>
                         <Link to="/admin/experimentmanagement" className="text-light-slate hover:text-cyan transition-colors">Kelola Eksperimen</Link>
+                        <Link to="/admin/stats" className="text-light-slate hover:text-cyan transition-colors">Visualisasi</Link>
                     </>
                 );
             case 'researcher':
