@@ -19,13 +19,30 @@ def create_experiment(db: Session, experiment: schemas.ExperimentCreate, user_id
     db.refresh(db_experiment)
     return db_experiment
 
-def update_experiment(db: Session, db_obj: models.Experiment, obj_in: schemas.ExperimentUpdate):
-    update_data = obj_in.dict(exclude_unset=True)  # ✅ hanya field yang dikirim oleh user
+# def update_experiment(db: Session, db_obj: models.Experiment, obj_in: schemas.ExperimentUpdate):
+#     update_data = obj_in.dict(exclude_unset=True)  # ✅ hanya field yang dikirim oleh user
     
-    # Convert input_fields jika ada
-    if 'input_fields' in update_data and update_data['input_fields'] is not None:
-        update_data['input_fields'] = [field.dict() for field in update_data['input_fields']]
+#     # Convert input_fields jika ada
+#     if 'input_fields' in update_data and update_data['input_fields'] is not None:
+#         update_data['input_fields'] = [field.dict() for field in update_data['input_fields']]
 
+#     for field, value in update_data.items():
+#         setattr(db_obj, field, value)
+
+#     db.add(db_obj)
+#     db.commit()
+#     db.refresh(db_obj)
+#     return db_obj
+
+def update_experiment(db: Session, db_obj: models.Experiment, obj_in: schemas.ExperimentUpdate):
+    # Konversi Pydantic model ke dictionary
+    update_data = obj_in.model_dump(exclude_unset=True)
+
+    # HAPUS baris yang menyebabkan error. 'input_fields' sudah dalam format dict.
+    # if 'input_fields' in update_data and update_data['input_fields'] is not None:
+    #     update_data['input_fields'] = [field.dict() for field in update_data['input_fields']]
+
+    # Loop dan update field yang ada di database
     for field, value in update_data.items():
         setattr(db_obj, field, value)
 

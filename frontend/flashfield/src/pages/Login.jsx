@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 function Login() {
+    const { login } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -26,8 +29,9 @@ function Login() {
             });
             
             console.log('Login berhasil:', response.data);
-            localStorage.setItem('accessToken', response.data.access_token);
-            navigate('/beranda');
+            
+            const from = location.state?.from?.pathname || null;
+            login(response.data.user, response.data.access_token, from);
 
         } catch (err) {
             console.error('Login gagal:', err.response ? err.response.data : err.message);
