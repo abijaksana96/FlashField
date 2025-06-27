@@ -62,8 +62,8 @@ const EmptyState = () => (
     </tr>
 );
 
-// Komponen Pagination
-const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+// Komponen Pagination yang Dipercantik
+const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPerPage }) => {
     const getPageNumbers = () => {
         const pages = [];
         const maxVisible = 5;
@@ -85,52 +85,72 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     };
 
     const pageNumbers = getPageNumbers();
+    
+    // Calculate displayed items range
+    const startItem = (currentPage - 1) * itemsPerPage + 1;
+    const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
     if (totalPages <= 1) return null;
 
     return (
-        <div className="flex items-center justify-between px-6 py-4 bg-light-navy border-t border-navy">
-            <div className="flex justify-between items-center w-full">
+        <div className="bg-light-navy border-t border-navy/50">
+            <div className="flex flex-col sm:flex-row justify-between items-center px-6 py-4 gap-4">
+                {/* Info Text */}
                 <div className="text-sm text-slate">
-                    Halaman {currentPage} dari {totalPages}
+                    Menampilkan <span className="font-medium text-lightest-slate">{startItem}</span> sampai{' '}
+                    <span className="font-medium text-lightest-slate">{endItem}</span> dari{' '}
+                    <span className="font-medium text-lightest-slate">{totalItems}</span> total kontribusi
                 </div>
-                <div className="flex items-center space-x-2">
+                
+                {/* Navigation */}
+                <div className="flex items-center space-x-1">
+                    {/* Previous Button */}
                     <button
                         onClick={() => onPageChange(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className={`px-3 py-2 text-sm rounded-md ${
+                        className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
                             currentPage === 1
-                                ? 'text-slate/50 cursor-not-allowed'
-                                : 'text-slate hover:text-cyan hover:bg-navy/50'
+                                ? 'text-slate/40 cursor-not-allowed bg-navy/20'
+                                : 'text-slate hover:text-cyan hover:bg-navy/50 bg-navy/30'
                         }`}
                     >
-                        ← Sebelumnya
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Sebelumnya
                     </button>
                     
-                    {pageNumbers.map(page => (
-                        <button
-                            key={page}
-                            onClick={() => onPageChange(page)}
-                            className={`px-3 py-2 text-sm rounded-md ${
-                                page === currentPage
-                                    ? 'bg-cyan text-navy font-semibold'
-                                    : 'text-slate hover:text-cyan hover:bg-navy/50'
-                            }`}
-                        >
-                            {page}
-                        </button>
-                    ))}
+                    {/* Page Numbers */}
+                    <div className="flex items-center space-x-1">
+                        {pageNumbers.map(page => (
+                            <button
+                                key={page}
+                                onClick={() => onPageChange(page)}
+                                className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                                    page === currentPage
+                                        ? 'bg-cyan text-navy font-bold shadow-lg transform scale-105'
+                                        : 'text-slate hover:text-cyan hover:bg-navy/50 bg-navy/30'
+                                }`}
+                            >
+                                {page}
+                            </button>
+                        ))}
+                    </div>
                     
+                    {/* Next Button */}
                     <button
                         onClick={() => onPageChange(currentPage + 1)}
                         disabled={currentPage === totalPages}
-                        className={`px-3 py-2 text-sm rounded-md ${
+                        className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
                             currentPage === totalPages
-                                ? 'text-slate/50 cursor-not-allowed'
-                                : 'text-slate hover:text-cyan hover:bg-navy/50'
+                                ? 'text-slate/40 cursor-not-allowed bg-navy/20'
+                                : 'text-slate hover:text-cyan hover:bg-navy/50 bg-navy/30'
                         }`}
                     >
-                        Selanjutnya →
+                        Selanjutnya
+                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
                     </button>
                 </div>
             </div>
@@ -171,15 +191,29 @@ function Kontribusi() {
     const [experimentsMap, setExperimentsMap] = useState({});
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [totalSubmissions, setTotalSubmissions] = useState(0);
+    const itemsPerPage = 10;
 
     const fetchDashboardData = async (page = 1) => {
         if (!user) { setLoading(false); return; }
         setLoading(true);
         setError('');
         try {
-            const submissionsResponse = await apiClient.get('/users/me/submissions', { params: { page } });
+            // Calculate skip value for pagination
+            const skip = (page - 1) * itemsPerPage;
+            
+            // Get paginated submissions
+            const submissionsResponse = await apiClient.get(`/users/me/submissions?skip=${skip}&limit=${itemsPerPage}`);
             const subs = submissionsResponse.data;
             setSubmissions(subs);
+            
+            // Get total count for pagination
+            const totalResponse = await apiClient.get('/users/me/submissions');
+            const totalCount = totalResponse.data.length;
+            setTotalSubmissions(totalCount);
+            setTotalPages(Math.ceil(totalCount / itemsPerPage));
+            
+            // Get experiment details
             const experimentIds = [...new Set(subs.map(s => s.experiment_id))];
             if (experimentIds.length > 0) {
                 const experimentRequests = experimentIds.map(id => apiClient.get(`/experiments/${id}`));
@@ -188,7 +222,6 @@ function Kontribusi() {
                 experimentResponses.forEach(res => { expMap[res.data.id] = res.data; });
                 setExperimentsMap(expMap);
             }
-            setTotalPages(submissionsResponse.totalPages);
         } catch (err) {
             setError("Tidak dapat memuat riwayat kontribusi Anda.");
         } finally {
@@ -199,6 +232,15 @@ function Kontribusi() {
     useEffect(() => {
         fetchDashboardData(currentPage);
     }, [user, currentPage]);
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+        // Smooth scroll to top of table
+        document.querySelector('.bg-light-navy.rounded-lg.shadow-lg')?.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+        });
+    };
 
     const formatDate = (dateString) => new Date(dateString).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
 
@@ -211,8 +253,12 @@ function Kontribusi() {
                 <p className="mt-2 text-lg text-slate">Ini adalah ringkasan aktivitas dan kontribusi Anda.</p>
                 <div className="mt-6 border-t border-navy/50 pt-4 flex items-center gap-6">
                     <div className="text-center">
-                        <p className="text-3xl font-bold text-cyan">{loading ? '...' : submissions.length}</p>
+                        <p className="text-3xl font-bold text-cyan">{loading ? '...' : totalSubmissions}</p>
                         <p className="text-xs text-slate uppercase">Total Submisi</p>
+                    </div>
+                    <div className="text-center">
+                        <p className="text-3xl font-bold text-cyan">{loading ? '...' : Object.keys(experimentsMap).length}</p>
+                        <p className="text-xs text-slate uppercase">Eksperimen Diikuti</p>
                     </div>
                 </div>
             </div>
@@ -233,8 +279,8 @@ function Kontribusi() {
                         </thead>
                         <tbody className="divide-y divide-navy">
                             {loading ? (
-                                // Tampilkan efek loading skeleton
-                                [...Array(3)].map((_, i) => <SubmissionRowSkeleton key={i} />)
+                                // Tampilkan efek loading skeleton (10 rows)
+                                [...Array(itemsPerPage)].map((_, i) => <SubmissionRowSkeleton key={i} />)
                             ) : error ? (
                                 <ErrorMessage message={error} onRetry={fetchDashboardData} />
                             ) : submissions.length > 0 ? (
@@ -260,7 +306,13 @@ function Kontribusi() {
                         </tbody>
                     </table>
                 </div>
-                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                <Pagination 
+                    currentPage={currentPage} 
+                    totalPages={totalPages} 
+                    onPageChange={handlePageChange}
+                    totalItems={totalSubmissions}
+                    itemsPerPage={itemsPerPage}
+                />
             </div>
         </div>
     );

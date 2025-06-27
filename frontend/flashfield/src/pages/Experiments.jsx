@@ -3,8 +3,8 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import ExperimentCard from '../components/ExperimentCard';
 
-// Komponen Pagination
-const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+// Komponen Pagination yang Dipercantik
+const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPerPage }) => {
     const getPageNumbers = () => {
         const pages = [];
         const maxVisible = 5;
@@ -26,48 +26,71 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     };
 
     const pageNumbers = getPageNumbers();
+    
+    // Calculate displayed items range
+    const startItem = (currentPage - 1) * itemsPerPage + 1;
+    const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
     if (totalPages <= 1) return null;
 
     return (
-        <div className="flex items-center justify-center mt-12">
-            <div className="flex items-center space-x-2">
+        <div className="flex flex-col sm:flex-row justify-between items-center mt-12 p-6 bg-light-navy rounded-lg shadow-lg gap-4">
+            {/* Info Text */}
+            <div className="text-sm text-slate">
+                Menampilkan <span className="font-medium text-lightest-slate">{startItem}</span> sampai{' '}
+                <span className="font-medium text-lightest-slate">{endItem}</span> dari{' '}
+                <span className="font-medium text-lightest-slate">{totalItems}</span> eksperimen
+            </div>
+            
+            {/* Navigation */}
+            <div className="flex items-center space-x-1">
+                {/* Previous Button */}
                 <button
                     onClick={() => onPageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className={`px-4 py-2 text-sm rounded-md ${
+                    className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
                         currentPage === 1
-                            ? 'text-slate/50 cursor-not-allowed'
-                            : 'text-slate hover:text-cyan hover:bg-navy/50'
+                            ? 'text-slate/40 cursor-not-allowed bg-navy/20'
+                            : 'text-slate hover:text-cyan hover:bg-navy/50 bg-navy/30'
                     }`}
                 >
-                    ← Sebelumnya
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Sebelumnya
                 </button>
                 
-                {pageNumbers.map(page => (
-                    <button
-                        key={page}
-                        onClick={() => onPageChange(page)}
-                        className={`px-4 py-2 text-sm rounded-md ${
-                            page === currentPage
-                                ? 'bg-cyan text-navy font-semibold'
-                                : 'text-slate hover:text-cyan hover:bg-navy/50'
-                        }`}
-                    >
-                        {page}
-                    </button>
-                ))}
+                {/* Page Numbers */}
+                <div className="flex items-center space-x-1">
+                    {pageNumbers.map(page => (
+                        <button
+                            key={page}
+                            onClick={() => onPageChange(page)}
+                            className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                                page === currentPage
+                                    ? 'bg-cyan text-navy font-bold shadow-lg transform scale-105'
+                                    : 'text-slate hover:text-cyan hover:bg-navy/50 bg-navy/30'
+                            }`}
+                        >
+                            {page}
+                        </button>
+                    ))}
+                </div>
                 
+                {/* Next Button */}
                 <button
                     onClick={() => onPageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className={`px-4 py-2 text-sm rounded-md ${
+                    className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
                         currentPage === totalPages
-                            ? 'text-slate/50 cursor-not-allowed'
-                            : 'text-slate hover:text-cyan hover:bg-navy/50'
+                            ? 'text-slate/40 cursor-not-allowed bg-navy/20'
+                            : 'text-slate hover:text-cyan hover:bg-navy/50 bg-navy/30'
                     }`}
                 >
-                    Selanjutnya →
+                    Selanjutnya
+                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                 </button>
             </div>
         </div>
@@ -135,6 +158,8 @@ function Experiments() {
                         currentPage={currentPage}
                         totalPages={totalPages}
                         onPageChange={handlePageChange}
+                        totalItems={totalExperiments}
+                        itemsPerPage={itemsPerPage}
                     />
                 </>
             )}
