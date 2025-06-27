@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import apiClient from '../api/axiosConfig';
+import { useAuth } from '../context/AuthContext';
 
 // --- Komponen-komponen UI ---
 
@@ -107,10 +108,18 @@ const EditUserModal = ({ user, onClose, onSave }) => {
 
 
 function AdminUserManagement() {
+    const { user: currentUser, loading: authLoading } = useAuth();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [editingUser, setEditingUser] = useState(null);
+
+    // Double-check: Pastikan user adalah admin
+    useEffect(() => {
+        if (!authLoading && currentUser && currentUser.role !== 'admin') {
+            window.location.href = '/unauthorized';
+        }
+    }, [currentUser, authLoading]);
 
     const fetchAllUsers = async () => {
         setLoading(true);

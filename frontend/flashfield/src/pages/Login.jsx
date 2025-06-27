@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 function Login() {
@@ -10,6 +10,7 @@ function Login() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -28,7 +29,10 @@ function Login() {
             });
             
             console.log('Login berhasil:', response.data);
-            login(response.data.user, response.data.access_token);
+            
+            // Get redirect path from location state (dari ProtectedRoute)
+            const from = location.state?.from?.pathname || null;
+            login(response.data.user, response.data.access_token, from);
             // localStorage.setItem('accessToken', response.data.access_token);
             // navigate('/homepage');
 

@@ -1,15 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import ExperimentCard from '../components/ExperimentCard'; 
+import ExperimentCard from '../components/ExperimentCard';
+import { useAuth } from '../context/AuthContext';
 
 function HomePage() {
+    const { user, loading: authLoading } = useAuth();
     const [currentSlide, setCurrentSlide] = useState(0);
     const slides = [
         "https://placehold.co/1200x400/0a192f/64ffda?text=Selamat+Datang+di+FlashField",
         "https://placehold.co/1200x400/112240/a8b2d1?text=Riset+Kualitas+Udara+Terbaru",
     ];
     const timeoutRef = useRef(null);
+
+    // Double-check: Pastikan user adalah volunteer
+    useEffect(() => {
+        if (!authLoading && user && user.role !== 'volunteer') {
+            window.location.href = '/unauthorized';
+        }
+    }, [user, authLoading]);
 
     const resetTimeout = () => {
         if (timeoutRef.current) {
@@ -25,6 +34,13 @@ function HomePage() {
         );
         return () => resetTimeout();
     }, [currentSlide]);
+
+    // Double-check: Pastikan user adalah volunteer atau admin
+    useEffect(() => {
+        if (!authLoading && user && !['volunteer', 'admin'].includes(user.role)) {
+            window.location.href = '/unauthorized';
+        }
+    }, [user, authLoading]);
 
     const [experiments, setExperiments] = useState([]);
     const [loading, setLoading] = useState(true);

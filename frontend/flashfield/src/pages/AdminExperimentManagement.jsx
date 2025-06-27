@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import apiClient from '../api/axiosConfig';
+import { useAuth } from '../context/AuthContext';
 
 // --- Komponen-komponen UI yang Dipercantik ---
 
@@ -85,6 +86,7 @@ const ExperimentRow = ({ experiment, onDelete }) => {
 };
 
 function AdminExperimentManagement() {
+    const { user: currentUser, loading: authLoading } = useAuth();
     const [allExperiments, setAllExperiments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -92,6 +94,13 @@ function AdminExperimentManagement() {
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearching, setIsSearching] = useState(false);
     const [filteredResearchers, setFilteredResearchers] = useState({});
+
+    // Double-check: Pastikan user adalah admin
+    useEffect(() => {
+        if (!authLoading && currentUser && currentUser.role !== 'admin') {
+            window.location.href = '/unauthorized';
+        }
+    }, [currentUser, authLoading]);
 
     const fetchAllExperiments = async () => {
         setLoading(true);

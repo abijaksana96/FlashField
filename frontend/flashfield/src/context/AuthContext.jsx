@@ -30,12 +30,17 @@ export const AuthProvider = ({ children }) => {
         fetchUser();
     }, [token]);
 
-    const login = (userData, accessToken) => {
+    const login = (userData, accessToken, redirectPath = null) => {
         localStorage.setItem('accessToken', accessToken);
         setToken(accessToken);
         setUser(userData);
-        // PERUBAHAN: Selalu arahkan ke /dashboard setelah login.
-        navigate('/dashboardrole'); 
+        
+        // Redirect ke path yang diminta atau default dashboard
+        if (redirectPath) {
+            navigate(redirectPath);
+        } else {
+            navigate('/dashboardrole');
+        }
     };
 
     const logout = () => {

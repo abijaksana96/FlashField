@@ -67,6 +67,13 @@ function ResearcherDashboard() {
     const [loading, setLoading] = useState(true); // State loading untuk halaman ini
     const [error, setError] = useState('');
 
+    // Double-check: Pastikan user adalah researcher atau admin
+    useEffect(() => {
+        if (!authLoading && user && !['researcher', 'admin'].includes(user.role)) {
+            window.location.href = '/unauthorized';
+        }
+    }, [user, authLoading]);
+
     // useCallback agar fungsi tidak dibuat ulang di setiap render
     const fetchMyExperiments = useCallback(async () => {
         // Jangan jalankan jika user belum ada

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import ExperimentCard from '../components/ExperimentCard';
+import { useAuth } from '../context/AuthContext';
 
 // Komponen Pagination yang Dipercantik
 const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPerPage }) => {
@@ -98,6 +99,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange, totalItems, itemsPe
 };
 
 function Experiments() {
+    const { user, loading: authLoading } = useAuth();
     const [experiments, setExperiments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -107,6 +109,31 @@ function Experiments() {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(9); // 3x3 grid
     const [totalExperiments, setTotalExperiments] = useState(0);
+
+    // Double-check: Pastikan route ini hanya diakses oleh role yang tepat
+    useEffect(() => {
+        if (!authLoading && user) {
+            // Cek URL untuk menentukan role yang diizinkan
+            const currentPath = window.location.pathname;
+            
+            if (currentPath.startsWith('/admin/experiments')) {
+                // Route admin - hanya admin yang boleh
+                if (user.role !== 'admin') {
+                    window.location.href = '/unauthorized';
+                }
+            } else if (currentPath.startsWith('/researcher/experiments')) {
+                // Route researcher - hanya researcher yang boleh
+                if (user.role !== 'researcher') {
+                    window.location.href = '/unauthorized';
+                }
+            } else if (currentPath === '/experiments') {
+                // Route volunteer - hanya volunteer yang boleh
+                if (user.role !== 'volunteer') {
+                    window.location.href = '/unauthorized';
+                }
+            }
+        }
+    }, [user, authLoading]);
 
     useEffect(() => {
         const fetchAllExperiments = async () => {

@@ -19,7 +19,36 @@ apiClient.interceptors.request.use(
         return config; // Lanjutkan request dengan header yang baru
     },
     (error) => {
-        // Lakukan sesuatu jika ada error pada request
+        return Promise.reject(error);
+    }
+);
+
+// Interceptor untuk handle response errors
+apiClient.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    (error) => {
+        // Jika mendapat 401 (Unauthorized), hapus token dan redirect ke login
+        if (error.response?.status === 401) {
+            localStorage.removeItem('accessToken');
+            // Hanya redirect jika tidak sedang di halaman login/register
+            if (window.location.pathname !== '/login' && 
+                window.location.pathname !== '/register' && 
+                window.location.pathname !== '/') {
+                window.location.href = '/login';
+            }
+        }
+        
+        // Jika mendapat 403 (Forbidden), user tidak punya permission
+        if (error.response?.status === 403) {
+            console.error('Access forbidden - insufficient permissions');
+            // Redirect ke halaman unauthorized
+            if (window.location.pathname !== '/unauthorized') {
+                window.location.href = '/unauthorized';
+            }
+        }
+        
         return Promise.reject(error);
     }
 );
