@@ -373,7 +373,7 @@ Lihat [API_DYNAMIC_FIELDS.md](backend/API_DYNAMIC_FIELDS.md) untuk dokumentasi l
     <td align="center">
       <a href="https://github.com/farafahirun">
         <img src="https://github.com/farafahirun.png" width="100px;" alt="Developer"/><br />
-        <sub><b>Fara Rahmasari Fahirun - Frontend</b></sub>
+        <sub><b>Fara Rahmasari Fahirun</b></sub>
       </a><br />
       Universitas Hasanuddin
     </td>
